@@ -1,0 +1,232 @@
+import React, { useState, useMemo, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
+import { Plus, ChevronDown, X } from 'lucide-react'
+import { List as FixedSizeList } from 'react-window'
+import DebtSummaryContainer from '../components/DebtSummaryContainer'
+import BankSummarySection from '../components/BankSummarySection'
+import FilesSection from '../components/FilesSection'
+import ApplicationDetailsSidebar from '../components/ApplicationDetailsSidebar'
+
+// Import types and mock data from the original file
+import type {  Address, Business, Funding, Owner, CompanyData } from './CompanyDetail_types'
+export { mockCompaniesData } from './CompanyDetail_data'
+
+// Create formatter singletons at module level for performance
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+})
+
+export default function CompanyDetail() {
+  const { companyId } = useParams<{ companyId: string }>()
+  // Import mock data - this would normally be replaced with API call
+  const { mockCompaniesData } = require('./CompanyDetail_data')
+  const company = mockCompaniesData[companyId || 'eus_SQ9H728DpXto2jvDid6CUx'] || mockCompaniesData['eus_SQ9H728DpXto2jvDid6CUx']
+
+  // State for panel and actions
+  const [selectedStatement, setSelectedStatement] = useState<any>(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showActionsMenu, setShowActionsMenu] = useState(false)
+
+  const toProperCase = (str: string) => {
+    return str.toLowerCase().split(' ').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ')
+  }
+
+  const formatCurrency = useCallback((amount: number) => {
+    return currencyFormatter.format(amount)
+  }, [])
+
+  const handleStatementClick = (statement: any, period: string) => {
+    setSelectedStatement(statement)
+    setIsPanelOpen(true)
+  }
+
+  const closePanels = () => {
+    setIsPanelOpen(false)
+    setSelectedStatement(null)
+  }
+
+  // Memoized filtered and sorted transactions for virtualization
+  const filteredTransactions = useMemo(() => {
+    if (!selectedStatement) return []
+
+    return selectedStatement.transactions
+      .filter((transaction: any) =>
+        transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  }, [selectedStatement, searchQuery])
+
+  // Transaction Row Component for Virtualization
+  const TransactionRow: React.FC<any> = ({ index, style }) => {
+    const transaction = filteredTransactions[index]
+
+    return (
+      <div style={style}>
+        <div className="border-b border-gray-100 hover:bg-gray-50 transition-colors py-3 px-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="text-13 font-medium text-gray-900">{transaction.description}</div>
+              <div className="text-12 text-gray-500 mt-0.5">
+                {new Date(transaction.date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </div>
+            </div>
+            <div className={`text-13 font-medium ml-4 ${
+              transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {transaction.type === 'deposit' ? '+' : '-'}
+              {formatCurrency(Math.abs(transaction.amount))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-8 px-6 pt-6">
+        <div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-40 font-semibold text-gray-900">{toProperCase(company.name)}</h1>
+            <span className="badge-success">
+              {company.processing_status}
+            </span>
+            {company.lendsaas_synced && (
+              <span className="badge-sync">
+                LendSaaS Sync
+              </span>
+            )}
+            {company.crm_synced && (
+              <span className="badge-sync">
+                CRM Sync
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions Dropdown */}
+        <div className="relative">
+          <button
+            className="btn-primary flex items-center gap-2"
+            onClick={() => setShowActionsMenu(!showActionsMenu)}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Actions</span>
+            <ChevronDown className="w-4 h-4" />
+          </button>
+
+          {showActionsMenu && (
+            <>
+              <div
+                className="fixed inset-0 z-[100]"
+                onClick={() => setShowActionsMenu(false)}
+              />
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-6 shadow-lg z-[110]">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      console.log('Data Enrichment clicked')
+                      setShowActionsMenu(false)
+                    }}
+                    className="w-full px-4 py-2 text-left text-14 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    Data Enrichment
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('Quantum Data clicked')
+                      setShowActionsMenu(false)
+                    }}
+                    className="w-full px-4 py-2 text-left text-14 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    Quantum Data
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 px-6">
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Bank Summary */}
+          <BankSummarySection
+            transactions={company.transactions}
+            withholdingPercentage={company.withholding_percentage}
+            onStatementClick={handleStatementClick}
+            selectedStatement={selectedStatement}
+            isPanelOpen={isPanelOpen}
+          />
+
+          {/* Debt Summary */}
+          <DebtSummaryContainer companyId={company.company_id} />
+
+          {/* Files */}
+          <FilesSection companyId={company.company_id} />
+        </div>
+
+        {/* Sidebar */}
+        <ApplicationDetailsSidebar company={company} />
+      </div>
+
+      {/* Bank Statement Panel */}
+      {isPanelOpen && selectedStatement && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1" onClick={closePanels} />
+          <div className="w-96 bg-white shadow-xl border-l border-gray-200 flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h3 className="text-16 font-medium text-gray-900">Transaction Details</h3>
+                <p className="text-13 text-gray-600 mt-1">
+                  {
+                    company.transactions.find(t =>
+                      t.statements?.some(s => s.account_number === selectedStatement.account_number)
+                    )?.period || 'N/A'
+                  } • {selectedStatement.account_number.slice(-4)}
+                </p>
+              </div>
+              <button onClick={closePanels} className="p-2 hover:bg-gray-100 rounded-6">
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Search Filter */}
+            <div className="px-6 py-3 border-b border-gray-200">
+              <input
+                type="text"
+                placeholder="Filter transactions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 text-13 border border-gray-300 rounded-6 focus:outline-none focus:ring-1 focus:ring-primary-600 focus:border-primary-600"
+              />
+            </div>
+
+            {/* Transactions List - Virtualized */}
+            <div className="flex-1">
+              {/* @ts-expect-error - React-window List props typing issue */}
+              <FixedSizeList
+                rowCount={filteredTransactions.length}
+                rowHeight={78}
+                rowComponent={TransactionRow}
+                rowProps={{}}
+                defaultHeight={window.innerHeight - 200}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

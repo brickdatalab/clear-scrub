@@ -1,0 +1,17 @@
+{
+  "name": "clearscrub-backend-tests",
+  "version": "1.0.0",
+  "description": "Test suite for ClearScrub backend Edge Functions",
+  "type": "module",
+  "scripts": {
+    "test:upload": "node --env-file=.env.test test-upload-documents.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.0",
+    "node-fetch": "^3.3.2",
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "shadcn": "^3.4.2"
+  }
+}

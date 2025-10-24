@@ -1,0 +1,1958 @@
+{
+  "statement": {
+    "summary": {
+      "account_number": "7135449093",
+      "bank_name": "Navy Federal Credit Union",
+      "company": "KEYZ N THINGZ LLC",
+      "start_balance": 28745,
+      "end_balance": 26367.62,
+      "statement_start_date": "2025-07-01",
+      "statement_end_date": "2025-07-31",
+      "total_credits": 70735.31,
+      "total_debits": 73112.69,
+      "num_credits": 82,
+      "num_debits": 135,
+      "num_transactions": 217
+    },
+    "transactions": [
+      {
+        "amount": 120.59,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-01",
+        "balance": 28865.59
+      },
+      {
+        "amount": 171.9,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Autopay 070125",
+        "date": "2025-07-01",
+        "balance": 29037.49
+      },
+      {
+        "amount": 236.53,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070125",
+        "date": "2025-07-01",
+        "balance": 29274.02
+      },
+      {
+        "amount": 1325.71,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070125",
+        "date": "2025-07-01",
+        "balance": 30599.73
+      },
+      {
+        "amount": 5087.42,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070125",
+        "date": "2025-07-01",
+        "balance": 35687.15
+      },
+      {
+        "amount": -1,
+        "description": "ATM Fee - Withdrawal 06-30-25 Lax Distributio Los Angelos CA",
+        "date": "2025-07-01",
+        "balance": 35686.15
+      },
+      {
+        "amount": -204,
+        "description": "ATM Withdrawal 06-30-25 Lax Distributio Los Angelos CA",
+        "date": "2025-07-01",
+        "balance": 35482.15
+      },
+      {
+        "amount": -7.02,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Paymentus Corporat 800-420-1663 NC",
+        "date": "2025-07-01",
+        "balance": 35475.13
+      },
+      {
+        "amount": -105.5,
+        "description": "POS Debit- Business Debit Card 8582 07-01-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 35369.63
+      },
+      {
+        "amount": -107.16,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 35262.47
+      },
+      {
+        "amount": -108.14,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 35154.33
+      },
+      {
+        "amount": -109.75,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 35044.58
+      },
+      {
+        "amount": -110.57,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 34934.01
+      },
+      {
+        "amount": -112.63,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-01",
+        "balance": 34821.38
+      },
+      {
+        "amount": -200.28,
+        "description": "POS Debit- Business Debit Card 8582 06-29-25 Sq *(Abeautifulif Los Angeles CA",
+        "date": "2025-07-01",
+        "balance": 34621.1
+      },
+      {
+        "amount": -326.52,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 So California Edis 800-655-4555 CA",
+        "date": "2025-07-01",
+        "balance": 34294.58
+      },
+      {
+        "amount": -368.01,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 General Bottle Sup 323-5812001 CA",
+        "date": "2025-07-01",
+        "balance": 33926.57
+      },
+      {
+        "amount": -550.39,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Amazon Mktpl*ng5l9 Amzn.Com/Bill WA",
+        "date": "2025-07-01",
+        "balance": 33376.18
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-01",
+        "balance": 32376.18
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Otgms - Agv Dl Chk 12204348",
+        "date": "2025-07-01",
+        "balance": 32157.18
+      },
+      {
+        "amount": -484.82,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-01",
+        "balance": 31672.36
+      },
+      {
+        "amount": -980.94,
+        "description": "Paid To - Paypal Inst Xfer Chk 9100001",
+        "date": "2025-07-01",
+        "balance": 30691.42
+      },
+      {
+        "amount": -1000,
+        "description": "Paid To - Paypal Transfer Chk 9100001",
+        "date": "2025-07-01",
+        "balance": 29691.42
+      },
+      {
+        "amount": 259.15,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070225",
+        "date": "2025-07-02",
+        "balance": 29950.57
+      },
+      {
+        "amount": -5.99,
+        "description": "POS Debit- Business Debit Card 8582 07-02-25 Metropolis Parking Metropolis.lo TN",
+        "date": "2025-07-02",
+        "balance": 29944.58
+      },
+      {
+        "amount": -109.35,
+        "description": "POS Debit- Business Debit Card 8582 07-01-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-02",
+        "balance": 29835.23
+      },
+      {
+        "amount": -111.12,
+        "description": "POS Debit- Business Debit Card 8582 07-01-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-02",
+        "balance": 29724.11
+      },
+      {
+        "amount": -144.52,
+        "description": "POS Debit- Business Debit Card 8582 07-01-25 Cityinglewo 310-412-5410 CA",
+        "date": "2025-07-02",
+        "balance": 29579.59
+      },
+      {
+        "amount": -178.2,
+        "description": "POS Debit- Business Debit Card 8582 06-30-25 Benihana Torrance Torrance CA",
+        "date": "2025-07-02",
+        "balance": 29401.39
+      },
+      {
+        "amount": -405,
+        "description": "POS Debit- Business Debit Card 8582 07-01-25 Spa LA Los Angeles CA",
+        "date": "2025-07-02",
+        "balance": 28996.39
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv Dl Chk 12204348",
+        "date": "2025-07-02",
+        "balance": 28777.39
+      },
+      {
+        "amount": -441.93,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-02",
+        "balance": 28335.46
+      },
+      {
+        "amount": -584.46,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-02",
+        "balance": 27751
+      },
+      {
+        "amount": -606.17,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-02",
+        "balance": 27144.83
+      },
+      {
+        "amount": 187.73,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Autopay 070325",
+        "date": "2025-07-03",
+        "balance": 27332.56
+      },
+      {
+        "amount": 220.54,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070325",
+        "date": "2025-07-03",
+        "balance": 27553.1
+      },
+      {
+        "amount": 847.36,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070325",
+        "date": "2025-07-03",
+        "balance": 28400.46
+      },
+      {
+        "amount": -1,
+        "description": "ATM Fee - Withdrawal 07-02-25 722234 Vielming Los Angeles CA",
+        "date": "2025-07-03",
+        "balance": 28399.46
+      },
+      {
+        "amount": -104,
+        "description": "ATM Withdrawal 07-02-25 722234 Vielming Los Angeles CA",
+        "date": "2025-07-03",
+        "balance": 28295.46
+      },
+      {
+        "amount": -162,
+        "description": "POS Debit- Business Debit Card 8582 07-02-25 Hawthorne Smile Sp Hawthorne CA",
+        "date": "2025-07-03",
+        "balance": 28133.46
+      },
+      {
+        "amount": -11965.37,
+        "description": "POS Debit- Business Debit Card 8582 07-02-25 Airbnb * Hmrn9Nr5R Airbnb.Com CA",
+        "date": "2025-07-03",
+        "balance": 16168.09
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-03",
+        "balance": 15168.09
+      },
+      {
+        "amount": -3000,
+        "description": "Transfer To Shares\nNikia Whitaker",
+        "date": "2025-07-03",
+        "balance": 12168.09
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv Dl Chk 12204348",
+        "date": "2025-07-03",
+        "balance": 11949.09
+      },
+      {
+        "amount": -452.06,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-03",
+        "balance": 11497.03
+      },
+      {
+        "amount": 46.28,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070725",
+        "date": "2025-07-07",
+        "balance": 11543.31
+      },
+      {
+        "amount": 48.75,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-07",
+        "balance": 11592.06
+      },
+      {
+        "amount": 69.13,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-07",
+        "balance": 11661.19
+      },
+      {
+        "amount": 154.66,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070725",
+        "date": "2025-07-07",
+        "balance": 11815.85
+      },
+      {
+        "amount": 199.66,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070725",
+        "date": "2025-07-07",
+        "balance": 12015.51
+      },
+      {
+        "amount": 200.4,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-07",
+        "balance": 12215.91
+      },
+      {
+        "amount": 243.95,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070725",
+        "date": "2025-07-07",
+        "balance": 12459.86
+      },
+      {
+        "amount": 309.08,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-07",
+        "balance": 12768.94
+      },
+      {
+        "amount": 1659.78,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070725",
+        "date": "2025-07-07",
+        "balance": 14428.72
+      },
+      {
+        "amount": -19.62,
+        "description": "POS Debit- Business Debit Card 8582 07-06-25 Tesla Supercharger 877-7983752 CA",
+        "date": "2025-07-07",
+        "balance": 14409.1
+      },
+      {
+        "amount": -30.94,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-04-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-07",
+        "balance": 14378.16
+      },
+      {
+        "amount": -100.29,
+        "description": "POS Debit- Business Debit Card 8582 07-06-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 14277.87
+      },
+      {
+        "amount": -102.28,
+        "description": "POS Debit- Business Debit Card 8582 07-03-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 14175.59
+      },
+      {
+        "amount": -103.2,
+        "description": "POS Debit- Business Debit Card 8582 07-03-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 14072.39
+      },
+      {
+        "amount": -109.2,
+        "description": "POS Debit- Business Debit Card 8582 07-03-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 13963.19
+      },
+      {
+        "amount": -109.74,
+        "description": "POS Debit- Business Debit Card 8582 07-03-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 13853.45
+      },
+      {
+        "amount": -110.08,
+        "description": "POS Debit- Business Debit Card 8582 07-03-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-07",
+        "balance": 13743.37
+      },
+      {
+        "amount": -158.01,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-06-25 Petco 1187 Los Angeles CA",
+        "date": "2025-07-07",
+        "balance": 13585.36
+      },
+      {
+        "amount": -197.48,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Spc1235 Los Angeles CA",
+        "date": "2025-07-07",
+        "balance": 13387.88
+      },
+      {
+        "amount": -800,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-07",
+        "balance": 12587.88
+      },
+      {
+        "amount": -1500,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-07",
+        "balance": 11087.88
+      },
+      {
+        "amount": -199,
+        "description": "Paid To - Monthly Mint Keyz N Thi Chk 6701509",
+        "date": "2025-07-07",
+        "balance": 10888.88
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-07",
+        "balance": 10669.88
+      },
+      {
+        "amount": -610.08,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-07",
+        "balance": 10059.8
+      },
+      {
+        "amount": -1250,
+        "description": "Paid To - Mint Funding Payment 22 Chk 12204348",
+        "date": "2025-07-07",
+        "balance": 8809.8
+      },
+      {
+        "amount": 49.1,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 070825",
+        "date": "2025-07-08",
+        "balance": 8858.9
+      },
+      {
+        "amount": 1032.57,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070825",
+        "date": "2025-07-08",
+        "balance": 9891.47
+      },
+      {
+        "amount": 4623.27,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070825",
+        "date": "2025-07-08",
+        "balance": 14514.74
+      },
+      {
+        "amount": -1,
+        "description": "ATM Fee - Withdrawal 07-07-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-08",
+        "balance": 14513.74
+      },
+      {
+        "amount": -403.5,
+        "description": "ATM Withdrawal 07-07-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-08",
+        "balance": 14110.24
+      },
+      {
+        "amount": -101.11,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 14009.13
+      },
+      {
+        "amount": -104.58,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13904.55
+      },
+      {
+        "amount": -106.11,
+        "description": "POS Debit- Business Debit Card 8582 07-08-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13798.44
+      },
+      {
+        "amount": -106.68,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13691.76
+      },
+      {
+        "amount": -107.19,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13584.57
+      },
+      {
+        "amount": -107.83,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13476.74
+      },
+      {
+        "amount": -112.37,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-08",
+        "balance": 13364.37
+      },
+      {
+        "amount": -119.64,
+        "description": "POS Debit- Business Debit Card 8582 07-06-25 Tst*jame Enoteca El Segundo CA",
+        "date": "2025-07-08",
+        "balance": 13244.73
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-08",
+        "balance": 12244.73
+      },
+      {
+        "amount": -2000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-08",
+        "balance": 10244.73
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-08",
+        "balance": 10025.73
+      },
+      {
+        "amount": -445.56,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-08",
+        "balance": 9580.17
+      },
+      {
+        "amount": 149.9,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Atds",
+        "date": "2025-07-09",
+        "balance": 9730.07
+      },
+      {
+        "amount": 1218.4,
+        "description": "Deposit - ACH Paid From Shopify Shopify 070925",
+        "date": "2025-07-09",
+        "balance": 10948.47
+      },
+      {
+        "amount": 11000,
+        "description": "Deposit - ACH Paid From Paypal Transfer 01Atdp",
+        "date": "2025-07-09",
+        "balance": 21948.47
+      },
+      {
+        "amount": -1,
+        "description": "ATM Fee - Withdrawal 07-08-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-09",
+        "balance": 21947.47
+      },
+      {
+        "amount": -1003.5,
+        "description": "ATM Withdrawal 07-08-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-09",
+        "balance": 20943.97
+      },
+      {
+        "amount": -113.92,
+        "description": "POS Debit- Business Debit Card 8582 07-08-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-09",
+        "balance": 20830.05
+      },
+      {
+        "amount": -1775,
+        "description": "POS Debit- Business Debit Card 8582 07-07-25 Paypal *laye Auerb 402-935-7733 CA",
+        "date": "2025-07-09",
+        "balance": 19055.05
+      },
+      {
+        "amount": -185.65,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-09",
+        "balance": 18869.4
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-09",
+        "balance": 18650.4
+      },
+      {
+        "amount": -347.81,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-09",
+        "balance": 18302.59
+      },
+      {
+        "amount": -401.48,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-09",
+        "balance": 17901.11
+      },
+      {
+        "amount": -656.39,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-09",
+        "balance": 17244.72
+      },
+      {
+        "amount": 122.5,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071025",
+        "date": "2025-07-10",
+        "balance": 17367.22
+      },
+      {
+        "amount": 209.28,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Atds",
+        "date": "2025-07-10",
+        "balance": 17576.5
+      },
+      {
+        "amount": 1438.97,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071025",
+        "date": "2025-07-10",
+        "balance": 19015.47
+      },
+      {
+        "amount": -103.19,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-10",
+        "balance": 18912.28
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-10",
+        "balance": 17912.28
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-10",
+        "balance": 17693.28
+      },
+      {
+        "amount": -372.57,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-10",
+        "balance": 17320.71
+      },
+      {
+        "amount": 84.86,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071125",
+        "date": "2025-07-11",
+        "balance": 17405.57
+      },
+      {
+        "amount": 167.2,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Atds",
+        "date": "2025-07-11",
+        "balance": 17572.77
+      },
+      {
+        "amount": -102.27,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-11",
+        "balance": 17470.5
+      },
+      {
+        "amount": -105.05,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-11",
+        "balance": 17365.45
+      },
+      {
+        "amount": -107.5,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-11",
+        "balance": 17257.95
+      },
+      {
+        "amount": -108.13,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-11",
+        "balance": 17149.82
+      },
+      {
+        "amount": -109.67,
+        "description": "POS Debit- Business Debit Card 8582 07-10-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-11",
+        "balance": 17040.15
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Cfgms - Agv Dl Chk 12204348",
+        "date": "2025-07-11",
+        "balance": 16821.15
+      },
+      {
+        "amount": -471.39,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-11",
+        "balance": 16349.76
+      },
+      {
+        "amount": -1250,
+        "description": "Paid To - Mint Funding Payment 23 Chk 12204348",
+        "date": "2025-07-11",
+        "balance": 15099.76
+      },
+      {
+        "amount": 49.93,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-14",
+        "balance": 15149.69
+      },
+      {
+        "amount": 148.44,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-14",
+        "balance": 15298.13
+      },
+      {
+        "amount": 226.66,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071425",
+        "date": "2025-07-14",
+        "balance": 15524.79
+      },
+      {
+        "amount": 277.64,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071425",
+        "date": "2025-07-14",
+        "balance": 15802.43
+      },
+      {
+        "amount": 344.61,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071425",
+        "date": "2025-07-14",
+        "balance": 16147.04
+      },
+      {
+        "amount": 1154.53,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071425",
+        "date": "2025-07-14",
+        "balance": 17301.57
+      },
+      {
+        "amount": 4048.17,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071425",
+        "date": "2025-07-14",
+        "balance": 21349.74
+      },
+      {
+        "amount": -27.84,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-11-25 Uber *smarthnal San Francisco",
+        "date": "2025-07-14",
+        "balance": 21321.9
+      },
+      {
+        "amount": -31.92,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-13-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-14",
+        "balance": 21289.98
+      },
+      {
+        "amount": -101.52,
+        "description": "POS Debit - Business Debit Card 8582 07-13-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-14",
+        "balance": 21188.46
+      },
+      {
+        "amount": -109.05,
+        "description": "POS Debit - Business Debit Card 8582 07-11-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-14",
+        "balance": 21079.41
+      },
+      {
+        "amount": -117.72,
+        "description": "POS Debit - Business Debit Card 8582 07-11-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-14",
+        "balance": 20961.69
+      },
+      {
+        "amount": -149.32,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-11-25 Uber *eats San Francisco",
+        "date": "2025-07-14",
+        "balance": 20812.37
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking",
+        "date": "2025-07-14",
+        "balance": 19812.37
+      },
+      {
+        "amount": -219,
+        "description": "Nikia Whitaker Paid To - Cfgms - Agv Dl Chk 12204348",
+        "date": "2025-07-14",
+        "balance": 19593.37
+      },
+      {
+        "amount": -484.21,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-14",
+        "balance": 19109.16
+      },
+      {
+        "amount": -11700,
+        "description": "Cash Withdrawal",
+        "date": "2025-07-14",
+        "balance": 7409.16
+      },
+      {
+        "amount": 73.26,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-15",
+        "balance": 7482.42
+      },
+      {
+        "amount": 78.46,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071525",
+        "date": "2025-07-15",
+        "balance": 7560.88
+      },
+      {
+        "amount": 374.76,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Autopay 071525",
+        "date": "2025-07-15",
+        "balance": 7935.64
+      },
+      {
+        "amount": 1178.34,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071525",
+        "date": "2025-07-15",
+        "balance": 9113.98
+      },
+      {
+        "amount": -1,
+        "description": "ATM Fee - Withdrawal 07-14-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-15",
+        "balance": 9112.98
+      },
+      {
+        "amount": -1003.5,
+        "description": "ATM Withdrawal 07-14-25 U.S. Bank Tm Los Angeles CA",
+        "date": "2025-07-15",
+        "balance": 8109.48
+      },
+      {
+        "amount": -4,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-15-25 Uber *eats San Francisco",
+        "date": "2025-07-15",
+        "balance": 8105.48
+      },
+      {
+        "amount": -13.98,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-14-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-15",
+        "balance": 8091.5
+      },
+      {
+        "amount": -49.4,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-14-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-15",
+        "balance": 8042.1
+      },
+      {
+        "amount": -100.08,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7942.02
+      },
+      {
+        "amount": -100.59,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7841.43
+      },
+      {
+        "amount": -103.35,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7738.08
+      },
+      {
+        "amount": -103.38,
+        "description": "POS Debit - Business Debit Card 8582 07-15-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7634.7
+      },
+      {
+        "amount": -103.52,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7531.18
+      },
+      {
+        "amount": -109.45,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7421.73
+      },
+      {
+        "amount": -110.73,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-15",
+        "balance": 7311
+      },
+      {
+        "amount": -429.12,
+        "description": "POS Debit - Business Debit Card 8582 07-14-25 General Bottle Sup 323-5812001 CA",
+        "date": "2025-07-15",
+        "balance": 6881.88
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Cfgms - Agv Dl Chk 12204348",
+        "date": "2025-07-15",
+        "balance": 6662.88
+      },
+      {
+        "amount": -698.33,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-15",
+        "balance": 5964.55
+      },
+      {
+        "amount": 24.39,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-16",
+        "balance": 5988.94
+      },
+      {
+        "amount": 146.03,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071625",
+        "date": "2025-07-16",
+        "balance": 6134.97
+      },
+      {
+        "amount": 1391.22,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071625",
+        "date": "2025-07-16",
+        "balance": 7526.19
+      },
+      {
+        "amount": -52.56,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-15-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-16",
+        "balance": 7473.63
+      },
+      {
+        "amount": -101.33,
+        "description": "POS Debit- Business Debit Card 8582 07-15-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-16",
+        "balance": 7372.3
+      },
+      {
+        "amount": -101.91,
+        "description": "POS Debit- Business Debit Card 8582 07-15-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-16",
+        "balance": 7270.39
+      },
+      {
+        "amount": -1023.94,
+        "description": "POS Debit- Business Debit Card 8582 07-15-25 Westlake Payment 888-7399192 CA",
+        "date": "2025-07-16",
+        "balance": 6246.45
+      },
+      {
+        "amount": -1500,
+        "description": "Transfer To Shares\nNikia Whitaker",
+        "date": "2025-07-16",
+        "balance": 4746.45
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-16",
+        "balance": 4527.45
+      },
+      {
+        "amount": -355.87,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-16",
+        "balance": 4171.58
+      },
+      {
+        "amount": -422.15,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-16",
+        "balance": 3749.43
+      },
+      {
+        "amount": -487.75,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-16",
+        "balance": 3261.68
+      },
+      {
+        "amount": 55.45,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071725",
+        "date": "2025-07-17",
+        "balance": 3317.13
+      },
+      {
+        "amount": 96.5,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-17",
+        "balance": 3413.63
+      },
+      {
+        "amount": 1273.2,
+        "description": "Deposit - ACH Paid From Shopify Shopify 071725",
+        "date": "2025-07-17",
+        "balance": 4686.83
+      },
+      {
+        "amount": 50,
+        "description": "Transfer From Shares",
+        "date": "2025-07-17",
+        "balance": 4736.83
+      },
+      {
+        "amount": -89.49,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-16-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-17",
+        "balance": 4647.34
+      },
+      {
+        "amount": -100.11,
+        "description": "POS Debit- Business Debit Card 8582 07-16-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-17",
+        "balance": 4547.23
+      },
+      {
+        "amount": -197.54,
+        "description": "POS Debit- Business Debit Card 8582 07-16-25 Amazon Mktpl*5M5Cy Amzn.Com/Bill WA",
+        "date": "2025-07-17",
+        "balance": 4349.69
+      },
+      {
+        "amount": -300,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-17",
+        "balance": 4049.69
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-17",
+        "balance": 3049.69
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-17",
+        "balance": 2830.69
+      },
+      {
+        "amount": -560.41,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-17",
+        "balance": 2270.28
+      },
+      {
+        "amount": 41.89,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 071825",
+        "date": "2025-07-18",
+        "balance": 2312.17
+      },
+      {
+        "amount": 247.03,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-18",
+        "balance": 2559.2
+      },
+      {
+        "amount": 1500,
+        "description": "Transfer From Shares",
+        "date": "2025-07-18",
+        "balance": 4059.2
+      },
+      {
+        "amount": -101.14,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3958.06
+      },
+      {
+        "amount": -102.21,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3855.85
+      },
+      {
+        "amount": -102.29,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3753.56
+      },
+      {
+        "amount": -102.72,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3650.84
+      },
+      {
+        "amount": -107.75,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3543.09
+      },
+      {
+        "amount": -112.55,
+        "description": "POS Debit- Business Debit Card 8582 07-17-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-18",
+        "balance": 3430.54
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-18",
+        "balance": 3211.54
+      },
+      {
+        "amount": -451.18,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-18",
+        "balance": 2760.36
+      },
+      {
+        "amount": -1250,
+        "description": "Paid To - Mint Funding Payment 24 Chk 12204348",
+        "date": "2025-07-18",
+        "balance": 1510.36
+      },
+      {
+        "amount": 12.67,
+        "description": "POS Credit Adjustment 8582 Transaction 07-20-25 Uber",
+        "date": "2025-07-21",
+        "balance": 1523.03
+      },
+      {
+        "amount": 104.08,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-21",
+        "balance": 1627.11
+      },
+      {
+        "amount": 216.23,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-21",
+        "balance": 1843.34
+      },
+      {
+        "amount": 257.17,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072125",
+        "date": "2025-07-21",
+        "balance": 2100.51
+      },
+      {
+        "amount": 306.42,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072125",
+        "date": "2025-07-21",
+        "balance": 2406.93
+      },
+      {
+        "amount": 465.66,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072125",
+        "date": "2025-07-21",
+        "balance": 2872.59
+      },
+      {
+        "amount": 476.35,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-21",
+        "balance": 3348.94
+      },
+      {
+        "amount": 1591.67,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072125",
+        "date": "2025-07-21",
+        "balance": 4940.61
+      },
+      {
+        "amount": 6512.25,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072125",
+        "date": "2025-07-21",
+        "balance": 11452.86
+      },
+      {
+        "amount": -10.07,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-20-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-21",
+        "balance": 11442.79
+      },
+      {
+        "amount": -22.92,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-19-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-21",
+        "balance": 11419.87
+      },
+      {
+        "amount": -31.75,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-18-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-21",
+        "balance": 11388.12
+      },
+      {
+        "amount": -67.97,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-19-25 Uber * Eats Pending San Francisco",
+        "date": "2025-07-21",
+        "balance": 11320.15
+      },
+      {
+        "amount": -100.26,
+        "description": "POS Debit- Business Debit Card 8582 07-20-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 11219.89
+      },
+      {
+        "amount": -100.44,
+        "description": "POS Debit- Business Debit Card 8582 07-18-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 11119.45
+      },
+      {
+        "amount": -100.66,
+        "description": "POS Debit- Business Debit Card 8582 07-18-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 11018.79
+      },
+      {
+        "amount": -101.56,
+        "description": "POS Debit- Business Debit Card 8582 07-19-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 10917.23
+      },
+      {
+        "amount": -104.03,
+        "description": "POS Debit- Business Debit Card 8582 07-18-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 10813.2
+      },
+      {
+        "amount": -105.63,
+        "description": "POS Debit- Business Debit Card 8582 07-18-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 10707.57
+      },
+      {
+        "amount": -106.57,
+        "description": "POS Debit- Business Debit Card 8582 07-18-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-21",
+        "balance": 10601
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-21",
+        "balance": 10382
+      },
+      {
+        "amount": -703.76,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-21",
+        "balance": 9678.24
+      },
+      {
+        "amount": 46.79,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-22",
+        "balance": 9725.03
+      },
+      {
+        "amount": 180.32,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Autopay 072225",
+        "date": "2025-07-22",
+        "balance": 9905.35
+      },
+      {
+        "amount": 268.04,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072225",
+        "date": "2025-07-22",
+        "balance": 10173.39
+      },
+      {
+        "amount": 1229.49,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072225",
+        "date": "2025-07-22",
+        "balance": 11402.88
+      },
+      {
+        "amount": 9400,
+        "description": "Deposit - ACH Paid From 1ST Alliance ACH Out 072225",
+        "date": "2025-07-22",
+        "balance": 20802.88
+      },
+      {
+        "amount": -102.32,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20700.56
+      },
+      {
+        "amount": -102.51,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20598.05
+      },
+      {
+        "amount": -105.09,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20492.96
+      },
+      {
+        "amount": -105.12,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20387.84
+      },
+      {
+        "amount": -105.82,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20282.02
+      },
+      {
+        "amount": -108.11,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20173.91
+      },
+      {
+        "amount": -108.74,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 20065.17
+      },
+      {
+        "amount": -111.49,
+        "description": "POS Debit- Business Debit Card 8582 07-21-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-22",
+        "balance": 19953.68
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-22",
+        "balance": 19734.68
+      },
+      {
+        "amount": -1221.72,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-22",
+        "balance": 18512.96
+      },
+      {
+        "amount": -5000,
+        "description": "Cash Withdrawal",
+        "date": "2025-07-22",
+        "balance": 13512.96
+      },
+      {
+        "amount": 135.67,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072325",
+        "date": "2025-07-23",
+        "balance": 13648.63
+      },
+      {
+        "amount": 169.28,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-23",
+        "balance": 13817.91
+      },
+      {
+        "amount": 1653.77,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072325",
+        "date": "2025-07-23",
+        "balance": 15471.68
+      },
+      {
+        "amount": 7628,
+        "description": "Bank Wire Deposit",
+        "date": "2025-07-23",
+        "balance": 23099.68
+      },
+      {
+        "amount": 16006,
+        "description": "Bank Wire Deposit",
+        "date": "2025-07-23",
+        "balance": 39105.68
+      },
+      {
+        "amount": -17.76,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Tesla Supercharger 877-7983752 CA",
+        "date": "2025-07-23",
+        "balance": 39087.92
+      },
+      {
+        "amount": -34.04,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-22-25 Uber *eats San Francisco",
+        "date": "2025-07-23",
+        "balance": 39053.88
+      },
+      {
+        "amount": -48.38,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Temu.Com Santa Monica CA",
+        "date": "2025-07-23",
+        "balance": 39005.5
+      },
+      {
+        "amount": -100.28,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-23",
+        "balance": 38905.22
+      },
+      {
+        "amount": -106.7,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-23",
+        "balance": 38898.52
+      },
+      {
+        "amount": -107.02,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-23",
+        "balance": 38691.5
+      },
+      {
+        "amount": -108.37,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-23",
+        "balance": 38583.13
+      },
+      {
+        "amount": -230.42,
+        "description": "POS Debit- Business Debit Card 8582 07-22-25 Temu.Com Santa Monica CA",
+        "date": "2025-07-23",
+        "balance": 38352.71
+      },
+      {
+        "amount": -300,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-23",
+        "balance": 38052.71
+      },
+      {
+        "amount": -1200,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-23",
+        "balance": 36852.71
+      },
+      {
+        "amount": -1200,
+        "description": "Nikia Whitaker Transfer To Checking",
+        "date": "2025-07-23",
+        "balance": 36652.71
+      },
+      {
+        "amount": -219,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-23",
+        "balance": 36447.46
+      },
+      {
+        "amount": -493.82,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-23",
+        "balance": 35953.64
+      },
+      {
+        "amount": -541.12,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-23",
+        "balance": 35412.52
+      },
+      {
+        "amount": -581.96,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-23",
+        "balance": 34830.56
+      },
+      {
+        "amount": -1050,
+        "description": "Paid To - Ejs Group Ejsgroup Chk 6311214",
+        "date": "2025-07-23",
+        "balance": 33780.56
+      },
+      {
+        "amount": 383.92,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-24",
+        "balance": 34164.48
+      },
+      {
+        "amount": 426.01,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072425",
+        "date": "2025-07-24",
+        "balance": 34590.49
+      },
+      {
+        "amount": -100.96,
+        "description": "POS Debit- Business Debit Card 8582 07-24-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-24",
+        "balance": 34489.53
+      },
+      {
+        "amount": -110.69,
+        "description": "POS Debit- Business Debit Card 8582 07-23-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-24",
+        "balance": 34378.84
+      },
+      {
+        "amount": -352.9,
+        "description": "POS Debit- Business Debit Card 8582 07-23-25 Dfw Brighton Dallas TX",
+        "date": "2025-07-24",
+        "balance": 34025.94
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-24",
+        "balance": 33839.69
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-24",
+        "balance": 33560.69
+      },
+      {
+        "amount": -586.56,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-24",
+        "balance": 32974.13
+      },
+      {
+        "amount": 33.44,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-25",
+        "balance": 33007.57
+      },
+      {
+        "amount": 89.65,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072525",
+        "date": "2025-07-25",
+        "balance": 33097.22
+      },
+      {
+        "amount": -100.04,
+        "description": "POS Debit- Business Debit Card 8582 07-24-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-25",
+        "balance": 32997.18
+      },
+      {
+        "amount": -130.49,
+        "description": "POS Debit- Business Debit Card 8582 07-25-25 Coterie Insurance Coterieinsura OH",
+        "date": "2025-07-25",
+        "balance": 32866.69
+      },
+      {
+        "amount": -1200,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-25",
+        "balance": 31666.69
+      },
+      {
+        "amount": -26.34,
+        "description": "Paid To - fountain of yout Stripe Cap Chk 9100001",
+        "date": "2025-07-25",
+        "balance": 31640.35
+      },
+      {
+        "amount": -168.36,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-25",
+        "balance": 31471.99
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-25",
+        "balance": 31285.74
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-25",
+        "balance": 31006.74
+      },
+      {
+        "amount": -1250,
+        "description": "Paid To - Mint Funding Payment 25 Chk 12204348",
+        "date": "2025-07-25",
+        "balance": 29756.74
+      },
+      {
+        "amount": 40.97,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-28",
+        "balance": 29797.71
+      },
+      {
+        "amount": 73.87,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072825",
+        "date": "2025-07-28",
+        "balance": 29871.58
+      },
+      {
+        "amount": 136.1,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-28",
+        "balance": 30007.68
+      },
+      {
+        "amount": 208.13,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072825",
+        "date": "2025-07-28",
+        "balance": 30215.81
+      },
+      {
+        "amount": 255.56,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072825",
+        "date": "2025-07-28",
+        "balance": 30471.37
+      },
+      {
+        "amount": 289.35,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-28",
+        "balance": 30760.72
+      },
+      {
+        "amount": 569.24,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072825",
+        "date": "2025-07-28",
+        "balance": 31329.96
+      },
+      {
+        "amount": 1983.74,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072825",
+        "date": "2025-07-28",
+        "balance": 33313.7
+      },
+      {
+        "amount": -66,
+        "description": "POS Debit- Business Debit Card 8582 07-25-25 Island Flavor ST. Thomas",
+        "date": "2025-07-28",
+        "balance": 33247.7
+      },
+      {
+        "amount": -261,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-26-25 Sapphire Beach Club ST Thomas",
+        "date": "2025-07-28",
+        "balance": 32986.7
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-28",
+        "balance": 31986.7
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-28",
+        "balance": 30986.7
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-28",
+        "balance": 30800.45
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-28",
+        "balance": 30521.45
+      },
+      {
+        "amount": -336.14,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-28",
+        "balance": 30185.31
+      },
+      {
+        "amount": 98.03,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 072925",
+        "date": "2025-07-29",
+        "balance": 30283.34
+      },
+      {
+        "amount": 108.15,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-29",
+        "balance": 30391.49
+      },
+      {
+        "amount": 161.08,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Autopay 072925",
+        "date": "2025-07-29",
+        "balance": 30552.57
+      },
+      {
+        "amount": 524.69,
+        "description": "Deposit - ACH Paid From Shopify Shopify 072925",
+        "date": "2025-07-29",
+        "balance": 31077.26
+      },
+      {
+        "amount": -11.09,
+        "description": "POS Debit- Business Debit Card 8582 07-28-25 Msi Insurance Bedf Tampa FL",
+        "date": "2025-07-29",
+        "balance": 31066.17
+      },
+      {
+        "amount": -14.01,
+        "description": "POS Debit- Business Debit Card 8582 07-28-25 Tesla Supercharger 877-7983752 CA",
+        "date": "2025-07-29",
+        "balance": 31052.16
+      },
+      {
+        "amount": -14.05,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Tesla Supercharger 877-7983752 CA",
+        "date": "2025-07-29",
+        "balance": 31038.11
+      },
+      {
+        "amount": -44.99,
+        "description": "POS Debit- Business Debit Card 8582 07-25-25 Mountain Top by Ex ST Thoma",
+        "date": "2025-07-29",
+        "balance": 30993.12
+      },
+      {
+        "amount": -107.97,
+        "description": "POS Debit- Business Debit Card 8582 07-28-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-29",
+        "balance": 30885.15
+      },
+      {
+        "amount": -557.94,
+        "description": "POS Debit- Business Debit Card 8582 07-25-25 Mountain Top by Ex ST Thoma",
+        "date": "2025-07-29",
+        "balance": 30327.21
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-29",
+        "balance": 30140.96
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-29",
+        "balance": 29861.96
+      },
+      {
+        "amount": -381.57,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-29",
+        "balance": 29480.39
+      },
+      {
+        "amount": -1044,
+        "description": "Paid To - Apollo Funding C Debits Chk 6701509",
+        "date": "2025-07-29",
+        "balance": 28436.39
+      },
+      {
+        "amount": 51.33,
+        "description": "Deposit - ACH Paid From Shopify Transfer 01Alds",
+        "date": "2025-07-30",
+        "balance": 28487.72
+      },
+      {
+        "amount": 428.29,
+        "description": "Deposit - ACH Paid From Shoppayinst Afrm Payments 073025",
+        "date": "2025-07-30",
+        "balance": 28916.01
+      },
+      {
+        "amount": 1104.59,
+        "description": "Deposit - ACH Paid From Shopify Shopify 073025",
+        "date": "2025-07-30",
+        "balance": 30020.6
+      },
+      {
+        "amount": -75.13,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-29-25 Uber * Eats Pending San Francisco",
+        "date": "2025-07-30",
+        "balance": 29945.47
+      },
+      {
+        "amount": -100.29,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29845.18
+      },
+      {
+        "amount": -100.95,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29744.23
+      },
+      {
+        "amount": -103.48,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29640.75
+      },
+      {
+        "amount": -103.79,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29536.96
+      },
+      {
+        "amount": -106.32,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29430.64
+      },
+      {
+        "amount": -108.26,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29322.38
+      },
+      {
+        "amount": -108.28,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29214.1
+      },
+      {
+        "amount": -108.72,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 29105.38
+      },
+      {
+        "amount": -111.15,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Shippo.Com Goshippo.Com CA",
+        "date": "2025-07-30",
+        "balance": 28994.23
+      },
+      {
+        "amount": -121.23,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 Spectrum 855-707-7328 MO",
+        "date": "2025-07-30",
+        "balance": 28873
+      },
+      {
+        "amount": -166.5,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-29-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-30",
+        "balance": 28706.5
+      },
+      {
+        "amount": -173.19,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-29-25 Uber * Eats Pending San Francisco",
+        "date": "2025-07-30",
+        "balance": 28533.31
+      },
+      {
+        "amount": -310.28,
+        "description": "POS Debit- Business Debit Card 8582 07-29-25 SpFoneunited Bank 617-457-4423 MA",
+        "date": "2025-07-30",
+        "balance": 28223.03
+      },
+      {
+        "amount": -1000,
+        "description": "Transfer To Checking\nNikia Whitaker",
+        "date": "2025-07-30",
+        "balance": 27223.03
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-30",
+        "balance": 27036.78
+      },
+      {
+        "amount": -199.13,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-30",
+        "balance": 26837.65
+      },
+      {
+        "amount": -245.37,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-30",
+        "balance": 26592.28
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-30",
+        "balance": 26313.28
+      },
+      {
+        "amount": -281.86,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-30",
+        "balance": 26031.42
+      },
+      {
+        "amount": 1426.82,
+        "description": "Deposit - ACH Paid From Shopify Shopify 073125",
+        "date": "2025-07-31",
+        "balance": 27458.24
+      },
+      {
+        "amount": -91.07,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-30-25 Uber Technologies, Inc Wilmington",
+        "date": "2025-07-31",
+        "balance": 27367.17
+      },
+      {
+        "amount": -97.59,
+        "description": "POS Debit - Business Debit Card 8582 Transaction 07-30-25 Uber * Eats Pending San Francisco",
+        "date": "2025-07-31",
+        "balance": 27269.58
+      },
+      {
+        "amount": -186.25,
+        "description": "Paid To - 1ST Alliance Grp 8887174727 Chk 12204348",
+        "date": "2025-07-31",
+        "balance": 27083.33
+      },
+      {
+        "amount": -279,
+        "description": "Paid To - Ofgms - Agv DI Chk 12204348",
+        "date": "2025-07-31",
+        "balance": 26804.33
+      },
+      {
+        "amount": -436.85,
+        "description": "Paid To - Shopify Capital Shopify Chk 2800008",
+        "date": "2025-07-31",
+        "balance": 26367.48
+      },
+      {
+        "amount": 0.14,
+        "description": "Dividend",
+        "date": "2025-07-31",
+        "balance": 26367.62
+      }
+    ]
+  }
+}

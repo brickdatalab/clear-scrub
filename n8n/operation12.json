@@ -1,0 +1,532 @@
+{
+  "name": "operation1+2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "operation12",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "882b63f1-ff53-4e64-a55b-301cb308b347",
+      "name": "Webhook",
+      "webhookId": "4c0b7155-5545-4864-b53a-ab538764e9a7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vnhauomvzjucxadrbywg.supabase.co/functions/v1/catch-operation12-response",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"llama_file_id\": \"{{ $('upload_llama').first().json.id }}\",\n  \"classification_type\": \"{{ JSON.parse($json.content[0].text.replace(/```json\\n|```/g, '').trim()).classification }}\",\n  \"document_id\": \"{{ $('Webhook').first().json.body.document_id }}\",\n  \"classification_confidence\": \"{{ JSON.parse($json.content[0].text.replace(/```json\\n|```/g, '').trim()).confidence }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "b030e3e5-35e1-4f80-a196-070426766571",
+      "name": "catch-operation12"
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "689aa6b2-81a1-4207-a058-4f986208f97e",
+      "name": "Wait1",
+      "webhookId": "7afed69a-2118-42b4-b3a2-02189f5745a4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.classification_type }}",
+                    "rightValue": "bank_statement",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b0e39c51-50b7-40ca-a3b4-eafa8eb2744f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "bank"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b4f45379-e089-4307-b844-8d536dfe66e5",
+                    "leftValue": "={{ $json.data.classification_type }}",
+                    "rightValue": "loan_application",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "application"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "3bfcb941-ac97-4196-a305-7ebca4cb1c5a",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "documents",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').first().json.body.document_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "extracted_markdown",
+              "fieldValue": "={{ $json.extractedText }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        -160
+      ],
+      "id": "3805239f-4cb9-4fa0-b125-40424e2ddd7a",
+      "name": "update_documents_table",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XUdZFG7IolH8Pss7",
+          "name": "clear scrub"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputType": "url",
+        "url": "={{ $('Webhook').item.json.body.file_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mistralAi",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        -160
+      ],
+      "id": "7b1498a3-f8a6-4580-a3f4-491e89484d4d",
+      "name": "extract_bank_text",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "oQF8VIX5yP59emmo",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vnhauomvzjucxadrbywg.supabase.co/functions/v1/catch-markdown-extract",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "document_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        -160
+      ],
+      "id": "6d59598f-2879-4cbf-b835-e21df72fce84",
+      "name": "catch_markdown_extract"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileUrl": "={{ $('Webhook').item.json.body.file_url }}",
+        "options": {
+          "fileName": "={{ $('Webhook').item.json.body.document_id }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        528,
+        0
+      ],
+      "id": "25dce2aa-e011-4141-84e7-a00e6dca8bef",
+      "name": "upload_anthropic",
+      "credentials": {
+        "anthropicApi": {
+          "id": "xczblYzm1nXy5u1h",
+          "name": "clear-scrub-workspace"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "claude-haiku-4-5-20251001"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a document classification specialist. You will analyze a PDF document and classify it into one of 30 specific document types based on detailed classification rules.\n\n## Document Classification Rules\n\nYou must classify the document into exactly one of these 30 types:\n\n1. **articles_of_organization_incorporation**: Legal docs filed with a state to establish an LLC or corporation. Titles include 'Articles of Organization' or 'Certificate of Incorporation'. Issued by a state authority (e.g., Secretary of State) with an official seal or 'filed' stamp. Key details: registered agent, company purpose, formation date.\n\n2. **balance_sheet**: A financial statement of a company's assets, liabilities, and equity at a specific point in time (e.g., 'As of Dec 31, 20XX'). Titled 'Balance Sheet' or 'Statement of Financial Position'. Has sections for assets, liabilities, and equity, following the equation: Assets = Liabilities + Equity.\n\n3. **bank_confirmation_letter**: A formal letter from a bank on official letterhead confirming account details. Titles include 'Bank Confirmation' or 'Verification of Deposit (VOD)'. Confirms account status, balance, or relationship length. Authenticated by a bank official's signature.\n\n4. **bank_statement**: A summary of financial transactions for a bank account over a specific period (e.g., monthly). Identified by bank branding and titles like 'Bank Statement'. Shows a clear date range, a detailed list of transactions (deposits, withdrawals), and the beginning and ending balances for the period.\n\n5. **business_credit_report**: Details a business's credit history and financial health. Issued by commercial bureaus like Dun & Bradstreet (D&B) or Experian Business. Contains business credit scores (e.g., PAYDEX), a D-U-N-S number, and focuses on entity credit. Includes trade lines, payment history, and public filings (liens, judgments, UCCs).\n\n6. **business_tax_return**: Official forms filed with the IRS or state reporting a business's financial activity. References the IRS and uses specific form numbers like 1120 (C Corp), 1120-S (S Corp), or 1065 (Partnership). A key identifier is the Employer Identification Number (EIN) and details on income, expenses, and tax liability.\n\n7. **cash_flow_statement**: A financial statement showing cash changes over a period. Titled 'Cash Flow Statement' or 'Statement of Cash Flows'. Covers a specific date range and has distinct sections for operating, investing, and financing activities. Concludes by reconciling beginning and ending cash balances.\n\n8. **credit_card_statement**: A summary of transactions, fees, and payments for a credit card account. Features the issuer's logo and titles like 'Credit Card Statement'. Provides key data: credit limit, available credit, minimum payment, and due date. Includes a detailed list of purchases, payments, fees, and interest charges.\n\n9. **credit_report**: Details an individual's personal credit history. Issued by consumer bureaus like Experian, Equifax, or TransUnion. Focuses on personal data like partial SSN and address history. Contains personal credit scores (FICO, VantageScore) and details on accounts, payment history, and inquiries.\n\n10. **declarations_page**: The summary page (usually first) of an insurance policy. Titled 'Declarations Page', 'Dec Page', or 'Certificate of Insurance (COI)'. Features the insurer's logo. Summarizes key info: policy number, named insured, policy period (effective/expiration dates), coverage limits, deductibles, and premiums.\n\n11. **drivers_licence_front_back**: A government-issued ID card from a state DMV for identity verification. Features a photo of the individual. The front contains name, date of birth (DOB), address, license number, and expiration date, plus security features like holograms. The back typically has barcodes or magnetic stripes.\n\n12. **entity_operating_agreement**: A legal document outlining an entity's operations, ownership, and governance. Titled 'Operating Agreement' for LLCs or 'Bylaws' for corporations. Contains clauses on ownership percentages, management, profit distribution, and dissolution. Validated by signatures of members, managers, or shareholders.\n\n13. **equipment_purchase_agreement**: A contract for the sale of specific equipment. Titled 'Equipment Purchase Agreement' or 'Bill of Sale'. Details the equipment (make, model, serial number/VIN), identifies the buyer and seller, and specifies the purchase price, payment terms, and warranty or 'as-is' language.\n\n14. **forensic_report**: A detailed investigative report on financial irregularities, fraud, or litigation. Titled 'Forensic Report' or 'Audit Investigation'. Contains narrative and analysis, focusing on methodology, findings, and conclusions, rather than just financial tables. Prepared by a professional like a CFE or accounting firm.\n\n15. **loan_application**: A standardized form to request financing. Titled 'Loan Application' or 'Credit Application'. Includes fields for business details (name, EIN, revenue) and owner's personal info (SSN, DOB). Specifies the requested loan amount and use of funds. Contains authorization for credit checks and requires a signature.\n\n16. **lease_agreement**: A contract for renting real property. Titled 'Lease Agreement' or 'Rental Agreement'. Identifies the lessor (landlord) and lessee (tenant) and specifies the property address. Details key terms like the lease term (start/end dates), monthly rent, and security deposit amount.\n\n17. **money_market_statement**: A statement for a money market or investment account from a financial institution. Identifies the account type as 'Money Market'. Details balances, interest earned (dividends), and portfolio holdings. May have different transaction types or limits than a standard checking statement.\n\n18. **month_to_date**: A recent transaction history from the start of the current month to the present. Titled 'Month to Date (MTD)' or 'Recent Activity'. Key feature is a date range starting near the 1st of the month and ending today. Often an informal online export or screenshot, lacking the structure of a full statement.\n\n19. **passport**: An official government document certifying identity and citizenship. Titled 'Passport' and includes the issuing country's name. Follows a standard format with a photo, nationality, DOB, passport number, and issue/expiration dates. A key feature is the machine-readable zone (MRZ) on the data page.\n\n20. **profit_and_loss_statement**: A financial statement summarizing revenues, costs, and expenses over a specific period. Titled 'Profit and Loss Statement (P&L)' or 'Income Statement'. Covers a date range (e.g., 'for the year ending...'). Includes sections for revenue, cost of goods sold (COGS), and operating expenses, concluding with net income (profit/loss).\n\n21. **purchase_sale_agreement**: A legal contract obligating a buyer to buy and a seller to sell an asset (e.g., real estate, business). Titled 'Purchase and Sale Agreement (PSA)' or 'Asset Purchase Agreement'. Details the asset being transferred, identifies the buyer and seller, and specifies the purchase price, terms, and closing date.\n\n22. **schedule_k1_tax_form**: An IRS form reporting income, losses, and distributions for partners or S corp shareholders. Titled 'Schedule K-1' and is associated with Form 1065 (partnerships) or 1120-S (S corps). Includes the entity's EIN and recipient's TIN/SSN. Has a standard box layout detailing the individual's share of income/deductions.\n\n23. **tax_return**: Official forms filed with the IRS for an individual's income and tax liability (personal tax return). References the IRS and is most commonly Form 1040. Contains the individual's Social Security Number (SSN) and details wages, adjusted gross income (AGI), deductions, and filing status.\n\n24. **share_certificate**: A document from a corporation certifying ownership of shares. Titled 'Share Certificate' or 'Stock Certificate', often with a formal design. Includes company name, shareholder name, number of shares, and a unique certificate number. Authenticated by officer signatures and may have a corporate seal.\n\n25. **trade_license**: A government permit authorizing a company to do business in a specific jurisdiction. Titled 'Business License' or 'Trade License'. Issued by a city, county, or state authority with an official seal. Includes business name, address, license type, license number, and effective/expiration dates.\n\n26. **ucc_filing**: A legal notice (UCC-1) filed by a creditor to claim a security interest in a debtor's assets. Titled 'UCC Financing Statement'. It's a standard form identifying the debtor, secured party (lender), and a description of the collateral. Validated by a filing stamp/number from the Secretary of State.\n\n27. **utility_bill**: An invoice for services like electricity, water, or gas from a public utility provider. Clearly identifies the service address. Key information includes the account number, usage metrics (e.g., kWh), the amount due, and the payment due date.\n\n28. **void_check**: A bank check invalidated by having 'VOID' written across it, used to provide banking details. Must be a standard check image showing the bank name, account holder info, and the routing and account numbers on the MICR line at the bottom.\n\n29. **w2_tax_form**: An official IRS form from an employer to an employee reporting annual wages and taxes withheld. Titled 'W-2 Wage and Tax Statement'. Includes employer's EIN and employee's SSN. Has a standard multi-box layout detailing wages, tips, and federal, Social Security, and Medicare taxes withheld.\n\n30. **w9_tax_form**: An official IRS form used to request a Taxpayer Identification Number (TIN) from a vendor. Titled 'W-9 Request for Taxpayer Identification Number and Certification'. A single-page form with fields for name, business name, and tax classification. Requires a TIN (SSN or EIN) and a certification signature.\n\n## Analysis Instructions\n\nExamine the document carefully, focusing on:\n1. Document titles and headers\n2. Issuing organizations or authorities\n3. Key identifying features (logos, seals, form numbers)\n4. Layout and structural elements\n5. Specific terminology that matches the classification rules\n\n**Important constraints:**\n- Only examine the first 2 pages maximum of the PDF document\n- Focus on the distinguishing characteristics mentioned in the classification rules\n- Match your observations to the specific document type descriptions\n\n## Task\n\nProvide your final answer in JSON format:\n\n{\n  \"classification\": \"document_type_name\",\n  \"confidence\": \"0.0 - 1.0\", \n  \"reasoning\": \"CONCISE explanation of why this classification was chosen based on the key identifying features observed\"\n}\n\nIf a document has one page, analyze that page. If it has 2 pages, analyze both of them. If a document has more than two pages, do not analyze anything after the second page when determining your classification. \n\nThe classification field must contain exactly one of the 30 document type names listed above. Your final output should contain only the JSON response. You must be very accurate and stray from overcomplicating a simple task of this classification. "
+            }
+          ]
+        },
+        "addAttachments": true,
+        "attachmentsUrls": "={{ $json.url }}",
+        "simplify": false,
+        "options": {
+          "system": "You are an expert document classification analyst with specialized training in recognizing financial, legal, tax, and administrative documents. Your core competency is rapidly identifying document types through visual and textual pattern recognition.",
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "id": "d6f23e70-124b-49b5-8953-e7a878e2c9cc",
+      "name": "classify",
+      "retryOnFail": true,
+      "credentials": {
+        "anthropicApi": {
+          "id": "xczblYzm1nXy5u1h",
+          "name": "clear-scrub-workspace"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.cloud.llamaindex.ai/api/v1/files/upload_from_url",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer llx-mfyYkQHPdbd5IoUEduWnzEf0hiXhY6uJkbsJv4ZOIUjf6odP"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "=https://vnhauomvzjucxadrbywg.supabase.co/storage/v1/object/public/incoming-documents/pdftraining-1090.pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "39580220-9c9d-4446-a362-9f3d364decc8",
+      "name": "upload_llama"
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "claude-haiku-4-5-20251001"
+        },
+        "text": "=You are an expert data extraction specialist for business loan applications. Your task is to extract structured information from loan application documents and output it as valid JSON following a precise schema.  CORE RULES: 1. Extract data accurately - never guess or fabricate information 2. Use null for missing values (NEVER use empty strings \"\", \"-\", or \"N/A\") 3. Follow the exact schema structure provided - output ALL fields even if null 4. Parse numeric values intelligently (handle abbreviations like \"2M\", \"500k\", ranges, etc.) 5. Normalize dates to YYYY-MM-DD format 6. Split full names into separate first/middle/last name fields 7. Structure addresses as objects with separate fields (not concatenated strings) 8. Extract both cell phone and home phone as separate fields 9. Calculate a confidence_score (0.0-1.0) based on extraction quality  OUTPUT FORMAT (CRITICAL - FOLLOW EXACTLY): - Output ONLY the raw JSON object - Do NOT wrap in markdown code blocks - Do NOT use ```json or ``` or any backticks - Do NOT add any text before the JSON - Do NOT add any text after the JSON - Your entire response must be ONLY the JSON - First character must be { - Last character must be } - Use double quotes for all strings - Ensure proper JSON syntax (commas, brackets, etc.)  INCORRECT OUTPUT EXAMPLE (DO NOT DO THIS): ```json { \"company\": ... } ```  CORRECT OUTPUT EXAMPLE (DO THIS): { \"company\": ... }  If a field cannot be extracted from the document, set it to null. If extraction quality is poor, reflect this in a lower confidence_score.\n\n\nExtract all loan application information from the provided document and return it as valid JSON following the schema below.\n\n# OUTPUT SCHEMA\n\nYour output must match this exact structure:\n\n{\n  \"company\": {\n    \"legal_name\": \"string (REQUIRED)\",\n    \"dba_name\": \"string or null\",\n    \"ein\": \"string in format XX-XXXXXXX (REQUIRED)\",\n    \"industry\": \"string or null\",\n    \"address_line1\": \"string (REQUIRED)\",\n    \"address_line2\": \"string or null\",\n    \"city\": \"string (REQUIRED)\",\n    \"state\": \"string 2-letter uppercase (REQUIRED)\",\n    \"zip\": \"string 5 or 9-digit format (REQUIRED)\",\n    \"phone\": \"string or null\",\n    \"email\": \"string or null\",\n    \"website\": \"string or null\"\n  },\n  \"application\": {\n    \"submission_id\": \"{{ $('Webhook').first().json.body.submission_id }}\",\n    \"document_id\": \"{{ $('Webhook').first().json.body.document_id }}\",\n    \"business_structure\": \"enum: 'Sole Proprietorship' | 'Partnership' | 'LLC' | 'Corporation' | 'S-Corp' | 'C-Corp' | 'Non-Profit' | 'Other' | null\",\n    \"start_date\": \"string YYYY-MM-DD format or null\",\n    \"years_in_business\": \"number or null\",\n    \"number_of_employees\": \"integer or null\",\n    \"annual_revenue\": \"number (pure numeric, no $ or commas) or null\",\n    \"amount_requested\": \"number (pure numeric, no $ or commas) or null\",\n    \"loan_purpose\": \"string or null\",\n    \"owner_1_first_name\": \"string (REQUIRED)\",\n    \"owner_1_middle_name\": \"string or null\",\n    \"owner_1_last_name\": \"string (REQUIRED)\",\n    \"owner_1_ssn\": \"string in format XXX-XX-XXXX or null\",\n    \"owner_1_dob\": \"string YYYY-MM-DD format or null\",\n    \"owner_1_ownership_pct\": \"number 0-100 or null\",\n    \"owner_1_address\": {\n      \"address_line1\": \"string\",\n      \"address_line2\": \"string or null\",\n      \"city\": \"string\",\n      \"state\": \"string 2-letter uppercase\",\n      \"zip\": \"string 5 or 9-digit format\"\n    } OR null,\n    \"owner_1_cell_phone\": \"string or null\",\n    \"owner_1_home_phone\": \"string or null\",\n    \"owner_1_email\": \"string or null\",\n    \"owner_2_first_name\": \"string or null\",\n    \"owner_2_middle_name\": \"string or null\",\n    \"owner_2_last_name\": \"string or null\",\n    \"owner_2_ssn\": \"string in format XXX-XX-XXXX or null\",\n    \"owner_2_dob\": \"string YYYY-MM-DD format or null\",\n    \"owner_2_ownership_pct\": \"number 0-100 or null\",\n    \"owner_2_address\": {\n      \"address_line1\": \"string\",\n      \"address_line2\": \"string or null\",\n      \"city\": \"string\",\n      \"state\": \"string 2-letter uppercase\",\n      \"zip\": \"string 5 or 9-digit format\"\n    } OR null,\n    \"owner_2_cell_phone\": \"string or null\",\n    \"owner_2_home_phone\": \"string or null\",\n    \"owner_2_email\": \"string or null\"\n  },\n  \"confidence_score\": \"number between 0.0 and 1.0\"\n}\n\n# EXTRACTION RULES\n\n## Name Extraction\n- If document shows \"John Michael Smith\", split into:\n  - owner_1_first_name: \"John\"\n  - owner_1_middle_name: \"Michael\"\n  - owner_1_last_name: \"Smith\"\n- If 2 words: First + Last (middle_name = null)\n- If 3+ words: First + Middle + Last\n- Remove titles (Mr., Mrs., Dr.)\n\n## Address Extraction\n- Extract addresses as structured objects with separate fields\n- If document shows \"456 Oak Ave Suite 2, New York, NY 10001\":\n  - address_line1: \"456 Oak Ave\"\n  - address_line2: \"Suite 2\"\n  - city: \"New York\"\n  - state: \"NY\"\n  - zip: \"10001\"\n- If no owner_2 exists, set owner_2_address to null (not an object with null fields)\n\n## Phone Extraction\n- Extract BOTH cell and home phone as separate fields\n- If document labels them: map directly\n- If unlabeled: first number → cell_phone, second → home_phone\n- If only one phone: put in cell_phone, set home_phone to null\n\n## Numeric Parsing (Revenue & Funding Amount)\nParse intelligently:\n- \"2M\" or \"2 million\" → 2000000\n- \"500k\" or \"500 thousand\" → 500000\n- \"$1.5M\" → 1500000\n- \"500k-1M\" (range) → 1000000 (use maximum)\n- Strip all $, commas, spaces\n- If labeled \"monthly\", multiply by 12 for annual\n- Output pure numbers (no strings, no formatting)\n\n## Date Normalization\nConvert all dates to YYYY-MM-DD:\n- \"11/10/1984\" → \"1984-11-10\"\n- \"November 10, 1984\" → \"1984-11-10\"\n- \"11-10-1984\" → \"1984-11-10\"\n\n## SSN Normalization\n- Extract FULL 9-digit SSN\n- Normalize to XXX-XX-XXXX format\n- \"123456789\" → \"123-45-6789\"\n\n## EIN Normalization\n- Extract 9-digit EIN\n- Normalize to XX-XXXXXXX format\n- \"123456789\" → \"12-3456789\"\n\n## Ownership Percentage\n- Store as number 0-100 (not 0-1 decimal)\n- \"0.5\" → 50\n- \"50%\" → 50\n\n## Business Structure\nMap variations to standard values:\n- \"Limited Liability Company\" → \"LLC\"\n- \"Inc.\" or \"Incorporated\" → \"Corporation\"\n- \"S Corporation\" → \"S-Corp\"\n- \"C Corporation\" → \"C-Corp\"\n\n## Start Date\n- Look for: \"date established\", \"incorporation date\", \"founded\"\n- If only \"years in business\" is given (e.g., \"5 years\"), calculate backwards from current date\n- Always output in YYYY-MM-DD format\n\n## Owner 2 Handling\n- If document only mentions one owner, set ALL owner_2_* fields to null\n- Do not create empty objects with null properties\n\n## Confidence Score\n- 0.9-1.0: Excellent extraction, all required fields clear\n- 0.7-0.89: Good extraction, minor unclear fields\n- 0.5-0.69: Fair extraction, several fields unclear or missing\n- Below 0.5: Poor extraction, document illegible or incomplete\n\n# OUTPUT INSTRUCTIONS (CRITICAL)\n\nIMPORTANT: Your response must be ONLY the raw JSON object.\n\nDO NOT wrap the JSON in markdown code blocks.\nDO NOT use ```json or ``` or any backticks.\nDO NOT add explanatory text.\n\nYour response must start with { and end with }.\n\nINCORRECT (DO NOT DO THIS):\n```json\n{\"company\": ...}\n```\n\nCORRECT (DO THIS):\n{\"company\": ...}\n\n\n---\n**MAKE SURE THESE KEY VALUES ARE IN THESE KEYS IN YOUR OUTPUT:**\n\"submission_id\": \"{{ $('Webhook').first().json.body.submission_id }}\"\n\"document_id\": \"{{ $('Webhook').first().json.body.document_id }}\"\n\n\n",
+        "documentUrls": "={{ $('upload_anthropic').item.json.url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        112
+      ],
+      "id": "62c0a742-1990-4b12-b3a7-c36b95e77c01",
+      "name": "extract_application",
+      "credentials": {
+        "anthropicApi": {
+          "id": "xczblYzm1nXy5u1h",
+          "name": "clear-scrub-workspace"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vnhauomvzjucxadrbywg.supabase.co/functions/v1/application-schema-intake",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Webhook-Secret",
+              "value": "clearscrub_webhook_2025_xyz123"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaGF1b212emp1Y3hhZHJieXdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg5NDE5MzgsImV4cCI6MjA0NDUxNzkzOH0.RMOZaWfh8OyRzGYLpgCISDCXxuGTKH5EWnOXe9cD5XI"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.content[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1696,
+        112
+      ],
+      "id": "edd89611-f857-4abf-81e4-8abfdbcef05c",
+      "name": "catch_application_data"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "flow.clearscrub.io",
+            "x-real-ip": "3.134.197.234",
+            "x-forwarded-for": "3.134.197.234",
+            "x-forwarded-proto": "https",
+            "content-length": "322",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "user-agent": "pg_net/0.19.5"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "file_url": "https://vnhauomvzjucxadrbywg.supabase.co/storage/v1/object/public/incoming-documents/240 Roofing LLC.pdf",
+            "filename": "240 Roofing LLC.pdf",
+            "file_path": "incoming-documents/240 Roofing LLC.pdf",
+            "document_id": "ebe9bf1d-a1dc-4569-a27a-893eb7493737",
+            "submission_id": "089c43af-8bd8-4d74-ab8a-b6c8e35a903b"
+          },
+          "webhookUrl": "https://flow.clearscrub.io/webhook/operation12",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "catch-operation12": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "upload_llama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "extract_bank_text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "extract_application",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_bank_text": {
+      "main": [
+        [
+          {
+            "node": "update_documents_table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_documents_table": {
+      "main": [
+        [
+          {
+            "node": "catch_markdown_extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_anthropic": {
+      "main": [
+        [
+          {
+            "node": "classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "classify": {
+      "main": [
+        [
+          {
+            "node": "catch-operation12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_llama": {
+      "main": [
+        [
+          {
+            "node": "upload_anthropic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_application": {
+      "main": [
+        [
+          {
+            "node": "catch_application_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1a2386e5-6fb8-4a8b-afdc-719e2f9a9a95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7754d08228c2f4686798eb95d0f3e07b88479fbdeed73791e01e841ed230fd86"
+  },
+  "id": "ARlGTZEBt5xKUQsx",
+  "tags": []
+}

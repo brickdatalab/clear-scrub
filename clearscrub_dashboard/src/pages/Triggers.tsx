@@ -1,0 +1,522 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  AlertTriangle,
+  Mail,
+  Webhook,
+  Plus,
+  Trash2,
+  X,
+  Power,
+  PowerOff
+} from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { api, type Trigger, type TriggerConfig } from '../services/api';
+
+const Triggers: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, authReady } = useAuth();
+
+  // Get active tab from URL or default to rules
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.includes('/triggers/emails')) return 'emails';
+    if (path.includes('/triggers/webhooks')) return 'webhooks';
+    return 'rules';
+  };
+
+  const [activeTab, setActiveTab] = useState(getActiveTab());
+  const [showAddRuleModal, setShowAddRuleModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Rules (Triggers) state
+  const [triggers, setTriggers] = useState<Trigger[]>([]);
+  const [newRule, setNewRule] = useState({
+    name: '',
+    condition_type: '',
+    condition_value: '',
+    action_type: '',
+    action_target: ''
+  });
+
+  // Emails state - NOT YET IMPLEMENTED (Phase 3E)
+  const [emails] = useState<any[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+
+  // Webhooks state - NOT YET IMPLEMENTED (Phase 3F)
+  const [webhooks] = useState<any[]>([]);
+  const [newWebhookUrl, setNewWebhookUrl] = useState('');
+  const [newWebhookDescription, setNewWebhookDescription] = useState('');
+
+  // Fetch triggers on mount
+  useEffect(() => {
+    if (authReady && user?.org_id) {
+      fetchTriggers();
+    }
+  }, [authReady, user?.org_id]);
+
+  const fetchTriggers = async () => {
+    if (!user?.org_id) {
+      setError('Organization ID not available');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await api.getTriggers(user.org_id);
+      setTriggers(data);
+    } catch (err: any) {
+      console.error('Failed to fetch triggers:', err);
+      setError(err.message || 'Failed to load automation triggers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/triggers${tab === 'rules' ? '' : `/${tab}`}`);
+  };
+
+  const handleCreateTrigger = async () => {
+    if (!user?.org_id) {
+      setError('Organization ID not available');
+      return;
+    }
+
+    if (!newRule.name || !newRule.condition_type || !newRule.action_type) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    setError(null);
+
+    try {
+      // Build TriggerConfig object
+      const config: TriggerConfig = {
+        name: newRule.name,
+        condition_type: newRule.condition_type,
+        condition_value: newRule.condition_value ? JSON.parse(newRule.condition_value) : {},
+        action_type: newRule.action_type,
+        action_target: newRule.action_target ? JSON.parse(newRule.action_target) : {}
+      };
+
+      await api.createTrigger(user.org_id, config);
+      await fetchTriggers();
+
+      // Reset form
+      setNewRule({
+        name: '',
+        condition_type: '',
+        condition_value: '',
+        action_type: '',
+        action_target: ''
+      });
+      setShowAddRuleModal(false);
+    } catch (err: any) {
+      console.error('Failed to create trigger:', err);
+      setError(err.message || 'Failed to create trigger');
+    }
+  };
+
+  const handleDeleteTrigger = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this trigger?')) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await api.deleteTrigger(id);
+      await fetchTriggers();
+    } catch (err: any) {
+      console.error('Failed to delete trigger:', err);
+      setError(err.message || 'Failed to delete trigger');
+    }
+  };
+
+  const handleToggleTrigger = async (id: string, currentStatus: 'active' | 'inactive') => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    setError(null);
+
+    try {
+      await api.toggleTrigger(id, newStatus);
+      await fetchTriggers();
+    } catch (err: any) {
+      console.error('Failed to toggle trigger:', err);
+      setError(err.message || 'Failed to toggle trigger status');
+    }
+  };
+
+  // Email handlers - NOT YET IMPLEMENTED
+  const addEmail = () => {
+    setError('Email notifications not yet implemented');
+  };
+
+  const revokeEmail = (id: string) => {
+    setError('Email notifications not yet implemented');
+  };
+
+  // Webhook handlers - NOT YET IMPLEMENTED
+  const addWebhook = () => {
+    setError('Webhooks not yet implemented');
+  };
+
+  const toggleWebhookStatus = (id: string) => {
+    setError('Webhooks not yet implemented');
+  };
+
+  const deleteWebhook = (id: string) => {
+    setError('Webhooks not yet implemented');
+  };
+
+  const conditionTypes = [
+    { value: 'transaction_amount', label: 'Transaction Amount' },
+    { value: 'statement_received', label: 'Statement Received' },
+    { value: 'processing_completed', label: 'Processing Completed' },
+    { value: 'processing_failed', label: 'Processing Failed' },
+    { value: 'daily_summary', label: 'Daily Summary' }
+  ];
+
+  const actionTypes = [
+    { value: 'send_email', label: 'Send Email' },
+    { value: 'webhook', label: 'Call Webhook' },
+    { value: 'flag_review', label: 'Flag for Review' },
+    { value: 'create_alert', label: 'Create Alert' }
+  ];
+
+  const renderRulesTab = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-14 text-gray-600">Loading automation triggers...</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-6 text-14">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <h2 className="text-24 font-bold text-gray-900 mb-2">Automation Triggers</h2>
+          <p className="text-14 text-gray-600 mb-6">Configure rules that automatically trigger actions when specific conditions are met</p>
+
+          <button
+            onClick={() => setShowAddRuleModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-14 font-medium rounded-6 hover:bg-primary-700 mb-4"
+          >
+            <Plus className="w-4 h-4" />
+            Add Trigger
+          </button>
+        </div>
+
+        {/* Triggers Table */}
+        {triggers.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 rounded-8">
+            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-16 font-medium text-gray-900 mb-1">No triggers configured</p>
+            <p className="text-14 text-gray-600">Create your first automation trigger to get started</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">NAME</th>
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">CONDITION</th>
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">ACTION</th>
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">STATUS</th>
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">STATS</th>
+                  <th className="text-left py-3 px-4 text-11 font-semibold text-gray-600 uppercase tracking-wide">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {triggers.map((trigger) => (
+                  <tr key={trigger.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 px-4">
+                      <div className="text-14 text-gray-900 font-medium">{trigger.name}</div>
+                      {trigger.description && (
+                        <div className="text-13 text-gray-600 mt-1">{trigger.description}</div>
+                      )}
+                    </td>
+                    <td className="py-4 px-4 text-14 text-gray-700 font-mono text-13">
+                      {trigger.condition_type}
+                    </td>
+                    <td className="py-4 px-4 text-14 text-gray-700 font-mono text-13">
+                      {trigger.action_type}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-4 text-12 font-medium ${
+                        trigger.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {trigger.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="text-13 text-gray-700">
+                        <div>Triggered {trigger.trigger_count} times</div>
+                        {trigger.last_triggered_at && (
+                          <div className="text-gray-500">
+                            Last: {new Date(trigger.last_triggered_at).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleToggleTrigger(trigger.id, trigger.status)}
+                          className="text-gray-600 hover:text-gray-800"
+                          title={trigger.status === 'active' ? 'Deactivate' : 'Activate'}
+                        >
+                          {trigger.status === 'active' ? (
+                            <PowerOff className="w-4 h-4" />
+                          ) : (
+                            <Power className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTrigger(trigger.id)}
+                          className="text-red-600 hover:text-red-800"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderEmailsTab = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-24 font-bold text-gray-900 mb-2">Email Notifications</h2>
+        <p className="text-14 text-gray-600 mb-6">Manage email addresses that will receive trigger notifications from the system</p>
+      </div>
+
+      {/* Coming Soon Message */}
+      <div className="text-center py-16 bg-gray-50 rounded-8">
+        <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p className="text-18 font-semibold text-gray-900 mb-2">Email Notifications Coming Soon</p>
+        <p className="text-14 text-gray-600 max-w-md mx-auto">
+          This feature is currently under development. You'll be able to configure email notifications for automation triggers soon.
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderWebhooksTab = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-24 font-bold text-gray-900 mb-2">Webhooks</h2>
+        <p className="text-14 text-gray-600 mb-6">Configure webhook endpoints to receive real-time notifications when rules are triggered</p>
+      </div>
+
+      {/* Coming Soon Message */}
+      <div className="text-center py-16 bg-gray-50 rounded-8">
+        <Webhook className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p className="text-18 font-semibold text-gray-900 mb-2">Webhooks Coming Soon</p>
+        <p className="text-14 text-gray-600 max-w-md mx-auto">
+          This feature is currently under development. You'll be able to configure webhook endpoints for automation triggers soon.
+        </p>
+      </div>
+    </div>
+  );
+
+  const tabs = [
+    { id: 'rules', label: 'Rules', icon: AlertTriangle },
+    { id: 'emails', label: 'Emails', icon: Mail },
+    { id: 'webhooks', label: 'Webhooks', icon: Webhook }
+  ];
+
+  return (
+    <>
+      {/* Add Trigger Modal */}
+      {showAddRuleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-8 shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-20 font-semibold text-gray-900">Add New Trigger</h2>
+              <button
+                onClick={() => setShowAddRuleModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-6 text-14">
+                  {error}
+                </div>
+              )}
+
+              {/* Trigger Name */}
+              <div>
+                <label className="block text-13 font-medium text-gray-700 mb-2">
+                  Trigger Name *
+                </label>
+                <input
+                  type="text"
+                  value={newRule.name}
+                  onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
+                  placeholder="e.g., High Transaction Alert"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-6 text-14 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                />
+              </div>
+
+              {/* Condition Type */}
+              <div>
+                <label className="block text-13 font-medium text-gray-700 mb-2">
+                  Condition Type *
+                </label>
+                <select
+                  value={newRule.condition_type}
+                  onChange={(e) => setNewRule({ ...newRule, condition_type: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-6 text-14 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                >
+                  <option value="">Select condition type</option>
+                  {conditionTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Condition Value (JSON) */}
+              <div>
+                <label className="block text-13 font-medium text-gray-700 mb-2">
+                  Condition Value (JSON)
+                </label>
+                <textarea
+                  value={newRule.condition_value}
+                  onChange={(e) => setNewRule({ ...newRule, condition_value: e.target.value })}
+                  placeholder='{"operator": ">", "amount": 10000}'
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-6 text-14 font-mono focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                />
+                <p className="text-12 text-gray-500 mt-1">
+                  Enter a valid JSON object. Example: {`{"operator": ">", "amount": 10000}`}
+                </p>
+              </div>
+
+              {/* Action Type */}
+              <div>
+                <label className="block text-13 font-medium text-gray-700 mb-2">
+                  Action Type *
+                </label>
+                <select
+                  value={newRule.action_type}
+                  onChange={(e) => setNewRule({ ...newRule, action_type: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-6 text-14 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                >
+                  <option value="">Select action type</option>
+                  {actionTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Action Target (JSON) */}
+              <div>
+                <label className="block text-13 font-medium text-gray-700 mb-2">
+                  Action Target (JSON)
+                </label>
+                <textarea
+                  value={newRule.action_target}
+                  onChange={(e) => setNewRule({ ...newRule, action_target: e.target.value })}
+                  placeholder='{"email": "user@example.com"}'
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-6 text-14 font-mono focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                />
+                <p className="text-12 text-gray-500 mt-1">
+                  Enter a valid JSON object. Example: {`{"email": "user@example.com"}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowAddRuleModal(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 text-14 font-medium rounded-6 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTrigger}
+                className="px-4 py-2 bg-primary-600 text-white text-14 font-medium rounded-6 hover:bg-primary-700"
+              >
+                Create Trigger
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-[1400px] mx-auto px-6 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-32 font-bold text-gray-900">Triggers</h1>
+          <p className="text-14 text-gray-600 mt-1">Configure rules, notifications, and webhooks for automated alerts</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="flex space-x-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`flex items-center gap-2 py-3 px-1 border-b-2 font-medium text-14 ${
+                  activeTab === tab.id
+                    ? 'border-primary-600 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="bg-white rounded-8 shadow-sm p-6">
+          {activeTab === 'rules' && renderRulesTab()}
+          {activeTab === 'emails' && renderEmailsTab()}
+          {activeTab === 'webhooks' && renderWebhooksTab()}
+        </div>
+      </div>
+      </div>
+    </>
+  );
+};
+
+export default Triggers;

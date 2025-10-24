@@ -1,0 +1,501 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "ClearScrub Loan Application Schema",
+  "description": "Standardized schema for extracting loan application data from various document formats",
+  "version": "1.1",
+  "type": "object",
+  "required": ["company", "application"],
+  
+  "properties": {
+    "company": {
+      "type": "object",
+      "description": "Information about the applicant business entity",
+      "required": ["legal_name", "ein", "address_line1", "city", "state", "zip"],
+      "properties": {
+        "legal_name": {
+          "type": "string",
+          "description": "The official registered legal name of the business as it appears on incorporation documents, tax filings, and legal contracts",
+          "minLength": 1,
+          "maxLength": 255,
+          "x-alternate-labels": [
+            "legal business name",
+            "registered business name",
+            "official company name",
+            "business legal name",
+            "entity name",
+            "corporate name",
+            "legal entity name",
+            "company name",
+            "business name",
+            "name of business"
+          ]
+        },
+        
+        "dba_name": {
+          "type": ["string", "null"],
+          "description": "Doing Business As name - the trade name or brand name under which the company operates if different from legal name",
+          "x-alternate-labels": [
+            "DBA",
+            "trade name",
+            "doing business as",
+            "operating name",
+            "fictitious business name",
+            "assumed name"
+          ]
+        },
+        
+        "ein": {
+          "type": "string",
+          "description": "Employer Identification Number - the 9-digit federal tax ID issued by the IRS",
+          "pattern": "^[0-9]{2}-[0-9]{7}$",
+          "x-alternate-labels": [
+            "EIN",
+            "federal tax id",
+            "tax ID",
+            "tax identification number",
+            "TIN",
+            "FEIN",
+            "employer ID number",
+            "IRS number"
+          ],
+          "x-extraction-instructions": "Accept with or without hyphen. Normalize to XX-XXXXXXX format."
+        },
+        
+        "industry": {
+          "type": ["string", "null"],
+          "description": "The primary industry sector or business category in which the company operates",
+          "x-alternate-labels": [
+            "industry",
+            "business type",
+            "sector",
+            "industry classification",
+            "type of business",
+            "business category",
+            "industry sector",
+            "NAICS code description"
+          ]
+        },
+        
+        "address_line1": {
+          "type": "string",
+          "description": "Primary street address line including street number and street name",
+          "x-alternate-labels": [
+            "street address",
+            "business address",
+            "address",
+            "street",
+            "location",
+            "physical address",
+            "mailing address line 1",
+            "address 1"
+          ]
+        },
+        
+        "address_line2": {
+          "type": ["string", "null"],
+          "description": "Secondary address line for suite, apartment, floor, or unit numbers",
+          "x-alternate-labels": [
+            "address line 2",
+            "suite",
+            "unit",
+            "apt",
+            "floor",
+            "address 2"
+          ]
+        },
+        
+        "city": {
+          "type": "string",
+          "description": "City or municipality name",
+          "x-alternate-labels": [
+            "city",
+            "town",
+            "municipality"
+          ]
+        },
+        
+        "state": {
+          "type": "string",
+          "description": "Two-letter US state abbreviation",
+          "pattern": "^[A-Z]{2}$",
+          "x-alternate-labels": [
+            "state",
+            "province",
+            "ST"
+          ]
+        },
+        
+        "zip": {
+          "type": "string",
+          "description": "5-digit or 9-digit ZIP postal code",
+          "pattern": "^[0-9]{5}(-[0-9]{4})?$",
+          "x-alternate-labels": [
+            "zip code",
+            "zip",
+            "postal code",
+            "zipcode"
+          ]
+        },
+        
+        "phone": {
+          "type": ["string", "null"],
+          "description": "Primary business phone number",
+          "x-alternate-labels": [
+            "phone number",
+            "business phone",
+            "telephone",
+            "contact number",
+            "phone",
+            "tel"
+          ]
+        },
+        
+        "email": {
+          "type": ["string", "null"],
+          "description": "Primary business email address",
+          "format": "email",
+          "x-alternate-labels": [
+            "email address",
+            "email",
+            "business email",
+            "contact email",
+            "e-mail"
+          ]
+        },
+        
+        "website": {
+          "type": ["string", "null"],
+          "description": "Business website URL",
+          "x-alternate-labels": [
+            "website",
+            "web address",
+            "URL",
+            "web site",
+            "company website"
+          ]
+        }
+      }
+    },
+    
+    "application": {
+      "type": "object",
+      "description": "Loan application financial information and owner details",
+      "required": ["owner_1_name"],
+      "properties": {
+        "business_structure": {
+          "type": ["string", "null"],
+          "description": "The legal structure or entity type of the business organization",
+          "enum": [
+            "Sole Proprietorship",
+            "Partnership",
+            "LLC",
+            "Corporation",
+            "S-Corp",
+            "C-Corp",
+            "Non-Profit",
+            "Other",
+            null
+          ],
+          "x-alternate-labels": [
+            "business structure",
+            "entity type",
+            "business entity",
+            "legal structure",
+            "type of entity",
+            "organization type",
+            "structure of business",
+            "legal entity type",
+            "business organization"
+          ]
+        },
+        
+        "years_in_business": {
+          "type": ["number", "null"],
+          "description": "How long the business has been operating, measured in years (can be decimal for partial years)",
+          "minimum": 0,
+          "x-alternate-labels": [
+            "years in business",
+            "time in business",
+            "years established",
+            "business age",
+            "operating since",
+            "years of operation",
+            "business tenure",
+            "how long in business",
+            "length of time in business"
+          ],
+          "x-extraction-instructions": "If date established is provided, calculate years from current date. If months given, convert to decimal years (e.g., 18 months = 1.5 years). If range given (e.g., '2-3 years'), use the midpoint (2.5)."
+        },
+        
+        "number_of_employees": {
+          "type": ["integer", "null"],
+          "description": "Total number of employees working for the business, including full-time, part-time, and owners",
+          "minimum": 1,
+          "x-alternate-labels": [
+            "number of employees",
+            "# of employees",
+            "employee count",
+            "total employees",
+            "staff size",
+            "how many employees",
+            "FTEs",
+            "full-time employees"
+          ]
+        },
+        
+        "annual_revenue": {
+          "type": ["number", "null"],
+          "description": "Total gross revenue or sales for the most recent completed fiscal year, in US dollars. This field requires intelligent parsing as it may appear in many formats.",
+          "minimum": 0,
+          "x-alternate-labels": [
+            "annual revenue",
+            "yearly revenue",
+            "annual sales",
+            "gross revenue",
+            "total revenue",
+            "annual income",
+            "sales volume",
+            "yearly sales",
+            "gross sales",
+            "annual gross revenue"
+          ],
+          "x-extraction-instructions": "SEMANTIC INTERPRETATION required. Parse flexibly: 1) ABBREVIATIONS (case insensitive): M/m/MM = million (×1,000,000), K/k = thousand (×1,000), B/b = billion (×1,000,000,000). Examples: '2M' → 2000000, '500k' → 500000, '$1.5M' → 1500000. 2) WRITTEN FORMS: 'two million' → 2000000, 'five hundred thousand' → 500000. 3) DECIMAL FORMATS: '2.5M' → 2500000. 4) RANGES: '500k-1M' → Use MAXIMUM value: 1000000. 5) CURRENCY: Strip all $, commas, spaces. 6) MONTHLY TO ANNUAL: If labeled as monthly, multiply by 12. OUTPUT: Pure numeric value."
+        },
+        
+        "requested_funding": {
+          "type": ["number", "null"],
+          "description": "The desired or requested dollar amount of funding. This is what the applicant is seeking, NOT what they will necessarily receive.",
+          "minimum": 0,
+          "x-alternate-labels": [
+            "funding amount",
+            "loan amount",
+            "amount requested",
+            "requested amount",
+            "desired amount",
+            "loan request",
+            "financing amount",
+            "amount needed",
+            "capital needed",
+            "funding request",
+            "amount seeking",
+            "requested funding"
+          ],
+          "x-extraction-instructions": "Same parsing rules as annual_revenue: strip $, commas, interpret abbreviations (K, M, B), handle ranges by taking maximum."
+        },
+        
+        "funding_purpose": {
+          "type": ["string", "null"],
+          "description": "The intended use or reason for the requested funding",
+          "x-alternate-labels": [
+            "funding purpose",
+            "loan purpose",
+            "purpose of loan",
+            "use of funds",
+            "reason for funding",
+            "intended use",
+            "use of proceeds",
+            "what will funds be used for"
+          ]
+        },
+        
+        "owner_1_name": {
+          "type": "string",
+          "description": "Full name (first and last) of the primary business owner or guarantor",
+          "x-alternate-labels": [
+            "owner name",
+            "primary owner",
+            "owner 1",
+            "guarantor name",
+            "principal name",
+            "borrower name",
+            "applicant name"
+          ],
+          "x-extraction-instructions": "If first_name and last_name are separate fields, concatenate with space. Format: [First] [Middle] [Last]. Omit middle if not present."
+        },
+        
+        "owner_1_ssn": {
+          "type": ["string", "null"],
+          "description": "Full Social Security Number of the primary owner (9 digits with hyphens)",
+          "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$",
+          "x-alternate-labels": [
+            "SSN",
+            "social security number",
+            "SS#",
+            "social",
+            "social security no",
+            "tax ID (personal)"
+          ],
+          "x-extraction-instructions": "Extract the FULL 9-digit Social Security Number. Normalize to XXX-XX-XXXX format with hyphens. If provided without hyphens (123456789), add them."
+        },
+        
+        "owner_1_dob": {
+          "type": ["string", "null"],
+          "description": "Date of birth of the primary owner",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "format": "date",
+          "x-alternate-labels": [
+            "date of birth",
+            "DOB",
+            "birth date",
+            "birthday",
+            "born on",
+            "date born"
+          ],
+          "x-extraction-instructions": "Normalize all date formats to YYYY-MM-DD: MM/DD/YYYY → YYYY-MM-DD, MM-DD-YYYY → YYYY-MM-DD, 'November 10, 1984' → '1984-11-10', '11/10/1984' → '1984-11-10'. Date must be in the past and person must be at least 18 years old."
+        },
+        
+        "owner_1_ownership_pct": {
+          "type": ["number", "null"],
+          "description": "Percentage of business ownership held by primary owner (0-100)",
+          "minimum": 0,
+          "maximum": 100,
+          "x-alternate-labels": [
+            "ownership percentage",
+            "ownership %",
+            "percent ownership",
+            "ownership stake",
+            "% owned"
+          ],
+          "x-extraction-instructions": "If shown as decimal (0.5), multiply by 100 to get 50. If shown with % symbol (50%), strip the % and use the number. Store as number between 0-100."
+        },
+        
+        "owner_1_address": {
+          "type": ["string", "null"],
+          "description": "Complete formatted mailing address of the primary owner",
+          "x-alternate-labels": [
+            "owner address",
+            "home address",
+            "personal address",
+            "residential address",
+            "mailing address"
+          ],
+          "x-extraction-instructions": "Concatenate address fields: [address_line1], [city], [state] [zip]. If address_line2 exists: [address_line1] [address_line2], [city], [state] [zip]. Omit empty fields."
+        },
+        
+        "owner_1_phone": {
+          "type": ["string", "null"],
+          "description": "Primary contact phone number for owner 1",
+          "x-alternate-labels": [
+            "phone",
+            "phone number",
+            "cell phone",
+            "mobile phone",
+            "home phone",
+            "contact number"
+          ],
+          "x-extraction-instructions": "If multiple phone fields exist (cell_phone, home_phone, mobile, etc.), prioritize: 1) cell_phone/mobile_phone, 2) home_phone, 3) work_phone. Use first available."
+        },
+        
+        "owner_1_email": {
+          "type": ["string", "null"],
+          "description": "Email address of primary owner",
+          "format": "email",
+          "x-alternate-labels": [
+            "email",
+            "email address",
+            "owner email",
+            "personal email"
+          ]
+        },
+        
+        "owner_2_name": {
+          "type": ["string", "null"],
+          "description": "Full name of second owner or co-guarantor (if applicable)",
+          "x-alternate-labels": [
+            "co-owner",
+            "secondary owner",
+            "owner 2",
+            "co-guarantor",
+            "partner name"
+          ],
+          "x-extraction-instructions": "Same concatenation rules as owner_1_name"
+        },
+        
+        "owner_2_ssn": {
+          "type": ["string", "null"],
+          "description": "Full Social Security Number of second owner (9 digits with hyphens)",
+          "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$",
+          "x-alternate-labels": [
+            "SSN",
+            "social security number",
+            "SS#",
+            "social"
+          ],
+          "x-extraction-instructions": "Same rules as owner_1_ssn. Extract FULL 9 digits, normalize to XXX-XX-XXXX format."
+        },
+        
+        "owner_2_dob": {
+          "type": ["string", "null"],
+          "description": "Date of birth of second owner",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "format": "date",
+          "x-alternate-labels": [
+            "date of birth",
+            "DOB",
+            "birth date"
+          ],
+          "x-extraction-instructions": "Same normalization rules as owner_1_dob. Convert all formats to YYYY-MM-DD."
+        },
+        
+        "owner_2_ownership_pct": {
+          "type": ["number", "null"],
+          "description": "Percentage of business ownership held by second owner",
+          "minimum": 0,
+          "maximum": 100,
+          "x-alternate-labels": [
+            "ownership percentage",
+            "ownership %",
+            "percent ownership",
+            "ownership stake",
+            "% owned"
+          ],
+          "x-extraction-instructions": "Same rules as owner_1_ownership_pct"
+        },
+        
+        "owner_2_address": {
+          "type": ["string", "null"],
+          "description": "Complete formatted address of second owner",
+          "x-alternate-labels": [
+            "owner address",
+            "home address",
+            "personal address",
+            "residential address",
+            "mailing address"
+          ],
+          "x-extraction-instructions": "Same concatenation rules as owner_1_address"
+        },
+        
+        "owner_2_phone": {
+          "type": ["string", "null"],
+          "description": "Contact phone for second owner",
+          "x-alternate-labels": [
+            "phone",
+            "phone number",
+            "cell phone",
+            "mobile phone",
+            "home phone"
+          ],
+          "x-extraction-instructions": "Same priority rules as owner_1_phone: prefer cell over home"
+        },
+        
+        "owner_2_email": {
+          "type": ["string", "null"],
+          "description": "Email address of second owner",
+          "format": "email",
+          "x-alternate-labels": [
+            "email",
+            "email address",
+            "owner email"
+          ]
+        }
+      }
+    },
+    
+    "confidence_score": {
+      "type": ["number", "null"],
+      "description": "Overall confidence score for the extraction (0.0 to 1.0)",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

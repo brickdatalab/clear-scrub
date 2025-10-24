@@ -1,0 +1,198 @@
+{
+  "name": "operation34",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schema",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        0
+      ],
+      "id": "1105ae4c-90aa-4795-87ac-2f7ec5d3a76d",
+      "name": "Webhook",
+      "webhookId": "b4851d3e-f7a6-4aac-b8c0-32379a18f2d8"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "documents",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.body.document_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        320,
+        0
+      ],
+      "id": "426c0813-abc6-4328-ad78-c3eaff0fdb45",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XUdZFG7IolH8Pss7",
+          "name": "clear scrub"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/v1/extraction/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer llx-mfyYkQHPdbd5IoUEduWnzEf0hiXhY6uJkbsJv4ZOIUjf6odP"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"webhook_configurations\": [\n    {\n      \"webhook_url\": \"https://flow.clearscrub.io/webhook/schema2\",\n      \"webhook_events\": [\n        \"extract.success\",\n        \"extract.error\",\n        \"extract.partial_success\"\n      ],\n      \"webhook_output_format\": \"string\"\n    }\n  ],\n  \"extraction_agent_id\": \"72bbb0aa-e242-4a18-889c-0e777a099188\",\n  \"file_id\": \"{{ $json.llama_file_id }}\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        544,
+        0
+      ],
+      "id": "9bc9a055-0351-49b2-9494-d4bc2abb00f5",
+      "name": "start_extract",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "documents",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Get a row').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "schema_job_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        752,
+        0
+      ],
+      "id": "22514693-22ee-47ec-86f9-9297536c1748",
+      "name": "update_job_id",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XUdZFG7IolH8Pss7",
+          "name": "clear scrub"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "flow.clearscrub.io",
+            "x-real-ip": "54.211.19.89",
+            "x-forwarded-for": "54.211.19.89",
+            "x-forwarded-proto": "https",
+            "content-length": "183",
+            "content-type": "application/json",
+            "accept": "*/*",
+            "accept-language": "*",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.69.4)",
+            "accept-encoding": "gzip,br"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "document_id": "316e98d4-c8c1-4337-b93f-4180983f5749",
+            "file_url": "https://vnhauomvzjucxadrbywg.supabase.co/storage/v1/object/public/extracted/316e98d4-c8c1-4337-b93f-4180983f5749.md"
+          },
+          "webhookUrl": "https://flow.clearscrub.io/webhook/schema",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "start_extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_extract": {
+      "main": [
+        [
+          {
+            "node": "update_job_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c7d92ba8-ea59-4d6a-a30c-dc08dfb84d19",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7754d08228c2f4686798eb95d0f3e07b88479fbdeed73791e01e841ed230fd86"
+  },
+  "id": "ZORMLIPFQYDdsHPV",
+  "tags": []
+}

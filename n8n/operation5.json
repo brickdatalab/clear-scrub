@@ -1,0 +1,281 @@
+{
+  "name": "operation5",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "009f2fc8-54cf-4789-bd8f-5e9cc0b3abf4",
+              "leftValue": "={{ $json.event_type }}",
+              "rightValue": "extract.success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        0
+      ],
+      "id": "68891482-0e11-4b98-ad97-62c009cd3c67",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/v1/extraction/jobs/{{ $json.job_id }}/result",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer llx-mfyYkQHPdbd5IoUEduWnzEf0hiXhY6uJkbsJv4ZOIUjf6odP"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "e8b73360-435d-4274-a5f2-4eafed18c87f",
+      "name": "get_schema"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "documents",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "schema_job_id",
+              "keyValue": "={{ $('edit_fields').item.json.job_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "id": "d3d6d3c3-4e68-4800-94d8-4e6e118d782f",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XUdZFG7IolH8Pss7",
+          "name": "clear scrub"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "schema2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "77963c85-2170-47f5-9b20-b88d4ecc990e",
+      "name": "catch_extract_alert",
+      "webhookId": "58be592b-9c70-4dbc-b89e-fd5d09478c75"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14fae4f3-9e4f-42e2-bb89-a8b774dc693a",
+              "name": "job_id",
+              "value": "={{ JSON.parse($json.body).data.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e57cd324-274c-4396-b0c5-7dedbaf924de",
+              "name": "event_type",
+              "value": "={{ $json.headers['x-webhook-event-type'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        0
+      ],
+      "id": "ebb6d66a-537f-4f0f-b162-680d8542d051",
+      "name": "edit_fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vnhauomvzjucxadrbywg.supabase.co/functions/v1/statement-schema-intake",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Webhook-Secret",
+              "value": "clearscrub_webhook_2025_xyz123"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "document_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "extracted_data",
+              "value": "={{ $('get_schema').item.json.data.statement.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        928,
+        0
+      ],
+      "id": "9638a0de-1ae4-4698-8b1b-e6c2becf1ba8",
+      "name": "statement-schema-intake"
+    }
+  ],
+  "pinData": {
+    "catch_extract_alert": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "flow.clearscrub.io",
+            "x-real-ip": "52.5.178.213",
+            "x-forwarded-for": "52.5.178.213",
+            "x-forwarded-proto": "https",
+            "content-length": "236",
+            "content-type": "application/json",
+            "user-agent": "llamaindex-webhook-service/1.0",
+            "x-webhook-event-id": "0a3575bd-00d9-4dab-82b8-ebf73b844c32",
+            "x-webhook-event-type": "extract.success",
+            "sentry-trace": "e237d829fdab40018cb46c43e025ee49-819fa11d3a7aba4a-0",
+            "baggage": "sentry-trace_id=e237d829fdab40018cb46c43e025ee49,sentry-sample_rand=0.890858,sentry-environment=prod,sentry-release=ed23bb44ce53844711592aafbde818369b45d0db,sentry-public_key=d8ea9fa7f8a0b7a2666b6795b294dd56,sentry-transaction=job_consumer_run_job,sentry-sample_rate=0.0,sentry-sampled=false",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate"
+          },
+          "params": {},
+          "query": {},
+          "body": "{\"event_id\":\"0a3575bd-00d9-4dab-82b8-ebf73b844c32\",\"event_type\":\"extract.success\",\"timestamp\":1760565143.6012473,\"data\":{\"id\":\"a4177018-9fb6-4b2f-bd4b-3aa294242714\",\"job_id\":\"a94bc007-d9cc-4490-aad5-3175d7c0c6df\"}}",
+          "webhookUrl": "https://flow.clearscrub.io/webhook/schema2",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "get_schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_schema": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "statement-schema-intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "catch_extract_alert": {
+      "main": [
+        [
+          {
+            "node": "edit_fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit_fields": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "17ce0912-7323-4ac1-8900-26c54acebced",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7754d08228c2f4686798eb95d0f3e07b88479fbdeed73791e01e841ed230fd86"
+  },
+  "id": "VmBlDnQfpBni7ECc",
+  "tags": []
+}

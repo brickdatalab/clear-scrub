@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "statement": {
+      "type": "object",
+      "required": ["summary", "transactions"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "required": [
+            "account_number",
+            "bank_name",
+            "company",
+            "end_balance",
+            "num_credits",
+            "num_debits",
+            "num_transactions",
+            "start_balance",
+            "statement_end_date",
+            "statement_start_date",
+            "total_credits",
+            "total_debits"
+          ],
+          "properties": {
+            "account_number": {
+              "type": "string",
+              "description": "EXTRACT: The full bank account number as shown on the statement, including any spaces or formatting"
+            },
+            "bank_name": {
+              "type": "string",
+              "description": "EXTRACT: The official name of the financial institution issuing the statement"
+            },
+            "company": {
+              "type": "string",
+              "description": "EXTRACT: The account holder's legal name (business or individual) as shown on the statement"
+            },
+            "start_balance": {
+              "type": "number",
+              "description": "EXTRACT: The opening balance at the start of the statement period. Found in the summary section (e.g., 'Beginning balance', 'Previous balance', 'Your previous balance')"
+            },
+            "end_balance": {
+              "type": "number",
+              "description": "EXTRACT: The closing balance at the end of the statement period. Found in the summary section (e.g., 'Ending balance', 'New balance', 'Your new balance')"
+            },
+            "statement_start_date": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "EXTRACT: The first day of the statement period in yyyy-mm-dd format"
+            },
+            "statement_end_date": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "EXTRACT: The last day of the statement period in yyyy-mm-dd format"
+            },
+            "total_credits": {
+              "type": "number",
+              "description": "EXTRACT: The total sum of all deposits/credits as printed in the statement summary section (e.g., 'Deposits/Credits', 'Deposits, credits and interest'). Extract this exact number from the summary - do NOT sum the transactions yourself"
+            },
+            "total_debits": {
+              "type": "number",
+              "description": "EXTRACT: The total sum of all withdrawals/debits as printed in the statement summary section (e.g., 'Withdrawals/Debits', 'Other withdrawals, debits and service charges'). Extract as a positive number. Extract this exact number from the summary - do NOT sum the transactions yourself"
+            },
+            "num_credits": {
+              "type": "integer",
+              "description": "CALCULATE: Count the number of transactions with positive amounts in the transactions array"
+            },
+            "num_debits": {
+              "type": "integer",
+              "description": "CALCULATE: Count the number of transactions with negative amounts in the transactions array"
+            },
+            "num_transactions": {
+              "type": "integer",
+              "description": "CALCULATE: Total count of all transactions in the transactions array (num_credits + num_debits)"
+            }
+          }
+        },
+        "transactions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["amount", "description", "date", "balance"],
+            "properties": {
+              "amount": {
+                "type": "number",
+                "description": "EXTRACT: Transaction amount. Use positive numbers for deposits/credits, negative numbers for withdrawals/debits/checks"
+              },
+              "description": {
+                "type": "string",
+                "description": "EXTRACT: The full transaction description exactly as shown on the statement"
+              },
+              "date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "description": "EXTRACT: Transaction posting date in yyyy-mm-dd format"
+              },
+              "balance": {
+                "type": "number",
+                "description": "CALCULATE: The running balance after this transaction. Calculate as: start_balance + sum of all transaction amounts from the first transaction up to and including this one. CRITICAL: Transactions must be in chronological order (earliest first) for this calculation to be correct"
+              }
+            }
+          },
+          "description": "Array of all transactions in CHRONOLOGICAL ORDER (earliest date first). The balance field for each transaction represents the account balance after that transaction posts"
+        }
+      }
+    }
+  },
+  "required": ["statement"]
+}
