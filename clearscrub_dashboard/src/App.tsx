@@ -19,6 +19,7 @@ const ApiKeys = lazy(() => import('./pages/ApiKeys'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Triggers = lazy(() => import('./pages/Triggers'))
 const AuthCallback = lazy(() => import('./pages/AuthCallback'))
+const TestUpload = lazy(() => import('./pages/TestUpload'))
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
               <Route path="triggers" element={<Triggers />} />
               <Route path="triggers/emails" element={<Triggers />} />
               <Route path="triggers/webhooks" element={<Triggers />} />
+              <Route path="test-upload" element={<TestUpload />} />
               <Route path="api-docs" element={<div className="p-8"><h1 className="text-2xl font-bold">API Documentation</h1><p>Coming soon...</p></div>} />
               <Route path="payments" element={<div className="p-8"><h1 className="text-2xl font-bold">Payments</h1><p>Coming soon...</p></div>} />
               <Route path="customers" element={<div className="p-8"><h1 className="text-2xl font-bold">Customers</h1><p>Coming soon...</p></div>} />

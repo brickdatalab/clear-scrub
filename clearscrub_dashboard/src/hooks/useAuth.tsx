@@ -92,35 +92,51 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       console.log('[useAuth] Fetching org_id for user:', supabaseUser.id)
     }
 
-    // Query profiles table to get org_id
-    const { data: profile, error } = await supabase
+    // Query profiles table to get org_id with timeout to prevent hanging
+    const timeoutMs = 5000
+    const queryPromise = supabase
       .from('profiles')
       .select('org_id')
       .eq('id', supabaseUser.id)
       .single()
 
-    if (error) {
-      console.error('[useAuth] Failed to fetch profile:', error)
-      // Return user without org_id if profile fetch fails
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Profile query timed out')), timeoutMs)
+    })
+
+    try {
+      const { data: profile, error } = await Promise.race([queryPromise, timeoutPromise])
+
+      if (error) {
+        console.error('[useAuth] Failed to fetch profile:', error)
+        return {
+          id: supabaseUser.id,
+          email: supabaseUser.email || '',
+          org_id: null
+        }
+      }
+
+      if (!profile?.org_id) {
+        console.warn('[useAuth] User profile exists but org_id is NULL:', supabaseUser.id)
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('[useAuth] User authenticated with org_id:', profile?.org_id)
+      }
+
+      return {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        org_id: profile?.org_id || null
+      }
+    } catch (err) {
+      console.error('[useAuth] Profile fetch error:', err)
+      // Return user without org_id on timeout/error - app can still function
       return {
         id: supabaseUser.id,
         email: supabaseUser.email || '',
         org_id: null
       }
-    }
-
-    if (!profile?.org_id) {
-      console.warn('[useAuth] User profile exists but org_id is NULL:', supabaseUser.id)
-    }
-
-    if (import.meta.env.DEV) {
-      console.log('[useAuth] User authenticated with org_id:', profile?.org_id)
-    }
-
-    return {
-      id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      org_id: profile?.org_id || null
     }
   }
 
