@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { api, type Trigger, type TriggerConfig } from '../services/api';
+import { withTimeout, TIMEOUT_MS } from '../lib/utils';
 
 const Triggers: React.FC = () => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const Triggers: React.FC = () => {
     setError(null);
 
     try {
-      const data = await api.getTriggers(user.org_id);
+      const data = await withTimeout(api.getTriggers(user.org_id), TIMEOUT_MS.SUPABASE_QUERY, 'getTriggers');
       setTriggers(data);
     } catch (err: any) {
       console.error('Failed to fetch triggers:', err);
@@ -106,7 +107,7 @@ const Triggers: React.FC = () => {
         action_target: newRule.action_target ? JSON.parse(newRule.action_target) : {}
       };
 
-      await api.createTrigger(user.org_id, config);
+      await withTimeout(api.createTrigger(user.org_id, config), TIMEOUT_MS.SUPABASE_QUERY, 'createTrigger');
       await fetchTriggers();
 
       // Reset form
@@ -132,7 +133,7 @@ const Triggers: React.FC = () => {
     setError(null);
 
     try {
-      await api.deleteTrigger(id);
+      await withTimeout(api.deleteTrigger(id), TIMEOUT_MS.SUPABASE_QUERY, 'deleteTrigger');
       await fetchTriggers();
     } catch (err: any) {
       console.error('Failed to delete trigger:', err);
@@ -145,7 +146,7 @@ const Triggers: React.FC = () => {
     setError(null);
 
     try {
-      await api.toggleTrigger(id, newStatus);
+      await withTimeout(api.toggleTrigger(id, newStatus), TIMEOUT_MS.SUPABASE_QUERY, 'toggleTrigger');
       await fetchTriggers();
     } catch (err: any) {
       console.error('Failed to toggle trigger:', err);

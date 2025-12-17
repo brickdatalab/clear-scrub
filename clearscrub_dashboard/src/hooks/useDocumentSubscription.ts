@@ -51,7 +51,11 @@ export function useDocumentSubscription(submissionId: string | null = null) {
           query = query.eq('submission_id', submissionId);
         }
 
-        const { data, error: fetchError } = await query;
+        const timeoutMs = 10000;
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Fetch documents timed out')), timeoutMs);
+        });
+        const { data, error: fetchError } = await Promise.race([query, timeoutPromise]);
 
         if (fetchError) throw fetchError;
         setDocuments(data || []);
@@ -141,7 +145,11 @@ export function useDocumentSubscription(submissionId: string | null = null) {
             query = query.eq('submission_id', submissionId);
           }
 
-          const { data } = await query;
+          const timeoutMs = 5000;
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Polling documents timed out')), timeoutMs);
+          });
+          const { data } = await Promise.race([query, timeoutPromise]);
 
           if (data) {
             setDocuments(data);

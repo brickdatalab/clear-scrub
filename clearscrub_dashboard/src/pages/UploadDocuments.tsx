@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 interface UploadedFile {
   id: string
@@ -117,9 +118,13 @@ export default function UploadDocuments() {
         )
       }, 200)
 
-      // Call Edge Function
+      // Call Edge Function with timeout protection for large uploads
       const fileObjects = filesToUpload.map((f) => f.file)
-      const response = await api.uploadDocumentsViaEdgeFunction(fileObjects)
+      const response = await withTimeout(
+        api.uploadDocumentsViaEdgeFunction(fileObjects),
+        TIMEOUT_MS.STORAGE_UPLOAD,
+        'Upload files'
+      )
 
       clearInterval(progressInterval)
 

@@ -249,11 +249,20 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     setLoading(true)
     setAuthReady(false)
 
+    const SIGN_IN_TIMEOUT_MS = 15000 // 15 seconds for sign in
+
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Wrap sign in with timeout to prevent infinite loading
+      const signInPromise = supabase.auth.signInWithPassword({
         email,
         password
       })
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Sign in timed out. Please check your connection and try again.')), SIGN_IN_TIMEOUT_MS)
+      })
+
+      const { data, error } = await Promise.race([signInPromise, timeoutPromise])
 
       if (error) throw error
 
@@ -290,8 +299,18 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
    */
   const signOut = async (): Promise<void> => {
     setLoading(true)
+
+    const SIGN_OUT_TIMEOUT_MS = 10000 // 10 seconds for sign out
+
     try {
-      const { error } = await supabase.auth.signOut()
+      // Wrap sign out with timeout to prevent hanging
+      const signOutPromise = supabase.auth.signOut()
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Sign out timed out')), SIGN_OUT_TIMEOUT_MS)
+      })
+
+      const { error } = await Promise.race([signOutPromise, timeoutPromise])
       if (error) throw error
 
       setSession(null)

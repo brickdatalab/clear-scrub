@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { api, type Document } from '../services/api'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../hooks/useAuth'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 interface FileRecord {
   id: string
@@ -57,7 +58,11 @@ export default function FilesTable({ companyId, refreshKey = 0 }: FilesTableProp
       setError(null)
 
       try {
-        const documents = await api.getDocuments(companyId)
+        const documents = await withTimeout(
+          api.getDocuments(companyId),
+          TIMEOUT_MS.SUPABASE_QUERY,
+          'getDocuments'
+        )
 
         // Transform documents to FileRecord format
         const transformedFiles: FileRecord[] = documents.map(doc => {

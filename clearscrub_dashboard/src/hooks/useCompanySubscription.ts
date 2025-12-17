@@ -45,11 +45,16 @@ export function useCompanySubscription() {
       setIsLoading(true);
       setError(null);
       try {
-        const { data, error: fetchError } = await supabase
+        const timeoutMs = 10000;
+        const queryPromise = supabase
           .from('companies')
           .select('*')
           .eq('org_id', user.org_id)
-          .order('created_at', { ascending: false});
+          .order('created_at', { ascending: false });
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Fetch companies timed out')), timeoutMs);
+        });
+        const { data, error: fetchError } = await Promise.race([queryPromise, timeoutPromise]);
 
         if (fetchError) throw fetchError;
         setCompanies(data || []);
@@ -124,11 +129,16 @@ export function useCompanySubscription() {
       console.log('Starting polling fallback for companies...');
       pollingInterval = setInterval(async () => {
         try {
-          const { data } = await supabase
+          const timeoutMs = 5000;
+          const queryPromise = supabase
             .from('companies')
             .select('*')
             .eq('org_id', user.org_id)
             .order('created_at', { ascending: false });
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('Polling companies timed out')), timeoutMs);
+          });
+          const { data } = await Promise.race([queryPromise, timeoutPromise]);
 
           if (data) {
             setCompanies(data);

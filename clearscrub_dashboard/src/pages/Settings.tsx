@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
+import { withTimeout, TIMEOUT_MS } from '../lib/utils';
 import type { Organization } from '../types/auth';
 
 const Settings: React.FC = () => {
@@ -54,7 +55,7 @@ const Settings: React.FC = () => {
   const [newIndustry, setNewIndustry] = useState('');
 
   /**
-   * Fetch organization data from Supabase
+   * Fetch organization data from Supabase with timeout protection
    */
   const fetchOrgData = async () => {
     if (!user?.org_id) {
@@ -67,11 +68,15 @@ const Settings: React.FC = () => {
     setError(null);
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('id', user.org_id)
-        .single();
+      const { data, error: fetchError } = await withTimeout(
+        supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', user.org_id)
+          .single(),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'Fetch organization'
+      );
 
       if (fetchError) {
         throw new Error(fetchError.message);
@@ -93,7 +98,7 @@ const Settings: React.FC = () => {
   };
 
   /**
-   * Update organization name
+   * Update organization name with timeout protection
    */
   const handleUpdateOrgName = async () => {
     if (!user?.org_id || !editedOrgName.trim()) {
@@ -105,10 +110,14 @@ const Settings: React.FC = () => {
     setSuccess(null);
 
     try {
-      const { error: updateError } = await supabase
-        .from('organizations')
-        .update({ name: editedOrgName.trim() })
-        .eq('id', user.org_id);
+      const { error: updateError } = await withTimeout(
+        supabase
+          .from('organizations')
+          .update({ name: editedOrgName.trim() })
+          .eq('id', user.org_id),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'Update organization name'
+      );
 
       if (updateError) {
         throw new Error(updateError.message);

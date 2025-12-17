@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 export default function ApiKeys() {
   const { user } = useAuth()
@@ -52,7 +53,7 @@ export default function ApiKeys() {
     setError(null)
 
     try {
-      const keys = await api.getApiKeys(orgId)
+      const keys = await withTimeout(api.getApiKeys(orgId), TIMEOUT_MS.EDGE_FUNCTION, 'getApiKeys')
       setApiKeys(keys)
     } catch (err: any) {
       console.error('Failed to fetch API keys:', err)
@@ -69,7 +70,7 @@ export default function ApiKeys() {
     setError(null)
 
     try {
-      const { id, key, prefix } = await api.createApiKey(orgId, newKeyName)
+      const { id, key, prefix } = await withTimeout(api.createApiKey(orgId, newKeyName), TIMEOUT_MS.EDGE_FUNCTION, 'createApiKey')
 
       // Show modal with full key (only shown once!)
       setNewGeneratedKey(key)
@@ -103,7 +104,7 @@ export default function ApiKeys() {
     setDropdownOpen(null)
 
     try {
-      const { key } = await api.regenerateApiKey(keyId)
+      const { key } = await withTimeout(api.regenerateApiKey(keyId), TIMEOUT_MS.EDGE_FUNCTION, 'regenerateApiKey')
 
       // Show modal with new key
       setNewGeneratedKey(key)
@@ -125,7 +126,7 @@ export default function ApiKeys() {
     setDropdownOpen(null)
 
     try {
-      await api.revokeApiKey(keyId)
+      await withTimeout(api.revokeApiKey(keyId), TIMEOUT_MS.EDGE_FUNCTION, 'revokeApiKey')
       await fetchApiKeys()
     } catch (err: any) {
       console.error('Failed to revoke API key:', err)
@@ -145,7 +146,7 @@ export default function ApiKeys() {
     setDropdownOpen(null)
 
     try {
-      await api.deleteApiKey(keyId)
+      await withTimeout(api.deleteApiKey(keyId), TIMEOUT_MS.EDGE_FUNCTION, 'deleteApiKey')
       await fetchApiKeys()
     } catch (err: any) {
       console.error('Failed to delete API key:', err)

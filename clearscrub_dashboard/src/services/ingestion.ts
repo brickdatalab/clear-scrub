@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { withTimeout, fetchWithTimeout, TIMEOUT_MS } from '../lib/utils';
 
 export interface PreparedSubmission {
   submission_id: string;
@@ -10,12 +11,20 @@ export interface PreparedSubmission {
   }>;
 }
 
+/**
+ * Prepare a submission by calling the database RPC
+ * Protected with timeout to prevent infinite loading
+ */
 export async function prepareSubmission(
   files: Array<{ name: string; size: number; type: string }>
 ): Promise<PreparedSubmission> {
-  const { data, error } = await supabase.rpc('prepare_submission', {
-    p_files: files,
-  });
+  const { data, error } = await withTimeout(
+    supabase.rpc('prepare_submission', {
+      p_files: files,
+    }),
+    TIMEOUT_MS.SUPABASE_QUERY,
+    'prepareSubmission'
+  );
 
   if (error) throw new Error(`Failed to prepare submission: ${error.message}`);
   return data as PreparedSubmission;
@@ -27,6 +36,10 @@ export interface UploadProgress {
   percent: number;
 }
 
+/**
+ * Upload a file to Supabase Storage
+ * Protected with storage upload timeout
+ */
 export async function uploadFileToStorage(
   file: File,
   filePath: string,
@@ -38,13 +51,17 @@ export async function uploadFileToStorage(
     throw new Error('No authentication token available');
   }
 
-  // Upload to Supabase Storage
-  const { error } = await supabase.storage
-    .from('incoming-documents')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: false,
-    });
+  // Upload to Supabase Storage with timeout protection
+  const { error } = await withTimeout(
+    supabase.storage
+      .from('incoming-documents')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      }),
+    TIMEOUT_MS.STORAGE_UPLOAD,
+    'uploadFileToStorage'
+  );
 
   if (error) throw new Error(`Upload failed: ${error.message}`);
 
@@ -53,6 +70,10 @@ export async function uploadFileToStorage(
   onProgress({ loaded: file.size, total: file.size, percent: 100 });
 }
 
+/**
+ * Enqueue a document for processing via Edge Function
+ * Protected with edge function timeout using fetchWithTimeout
+ */
 export async function enqueueDocumentProcessing(docId: string): Promise<void> {
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session?.access_token) {
@@ -61,7 +82,7 @@ export async function enqueueDocumentProcessing(docId: string): Promise<void> {
 
   const token = sessionData.session.access_token;
 
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     'https://vnhauomvzjucxadrbywg.supabase.co/functions/v1/enqueue-document-processing',
     {
       method: 'POST',
@@ -70,7 +91,8 @@ export async function enqueueDocumentProcessing(docId: string): Promise<void> {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ doc_id: docId }),
-    }
+    },
+    TIMEOUT_MS.EDGE_FUNCTION
   );
 
   if (!response.ok) {

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Upload, FileText, CheckCircle, XCircle, Clock, RefreshCw, Trash2 } from 'lucide-react'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 /**
  * Submission tracking - groups documents by submission_id
@@ -104,8 +105,12 @@ export default function TestUpload() {
     setError(null)
 
     try {
-      // EXACT SAME CALL as main UploadDocuments.tsx
-      const response = await api.uploadDocumentsViaEdgeFunction(selectedFiles)
+      // EXACT SAME CALL as main UploadDocuments.tsx - with timeout protection
+      const response = await withTimeout(
+        api.uploadDocumentsViaEdgeFunction(selectedFiles),
+        TIMEOUT_MS.STORAGE_UPLOAD,
+        'Upload files'
+      )
 
       if (!response.success) {
         throw new Error('Upload failed')
@@ -143,7 +148,7 @@ export default function TestUpload() {
   }
 
   /**
-   * Poll for processing status and fetch results
+   * Poll for processing status and fetch results with timeout protection
    */
   const pollStatus = async () => {
     setIsPolling(true)
@@ -152,11 +157,15 @@ export default function TestUpload() {
       for (const submission of submissions) {
         const documentIds = submission.documents.map(d => d.id)
 
-        // Check document status
-        const { data: docs, error: docsError } = await supabase
-          .from('documents')
-          .select('id, filename, status')
-          .in('id', documentIds)
+        // Check document status with timeout protection
+        const { data: docs, error: docsError } = await withTimeout(
+          supabase
+            .from('documents')
+            .select('id, filename, status')
+            .in('id', documentIds),
+          TIMEOUT_MS.SUPABASE_QUERY,
+          'Check document status'
+        )
 
         if (docsError) {
           console.error('[TestUpload] Poll error:', docsError)
@@ -191,81 +200,100 @@ export default function TestUpload() {
       }
     } catch (err) {
       console.error('[TestUpload] Poll error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to check status')
     } finally {
       setIsPolling(false)
     }
   }
 
   /**
-   * Fetch extraction results for a submission
+   * Fetch extraction results for a submission with timeout protection
    */
   const fetchSubmissionResults = async (submissionId: string, completedDocs: Array<{ id: string; filename: string }>) => {
     const statements: StatementResult[] = []
 
     for (const doc of completedDocs) {
-      // Get statement linked to this document
-      const { data: stmt, error: stmtError } = await supabase
-        .from('statements')
-        .select(`
-          id,
-          document_id,
-          statement_period_start,
-          statement_period_end,
-          opening_balance,
-          closing_balance,
-          total_deposits,
-          total_withdrawals,
-          average_daily_balance,
-          true_revenue,
-          negative_balance_days,
-          nsf_count,
-          transaction_count,
-          account_id,
-          company_id
-        `)
-        .eq('document_id', doc.id)
-        .single()
+      try {
+        // Get statement linked to this document with timeout
+        const { data: stmt, error: stmtError } = await withTimeout(
+          supabase
+            .from('statements')
+            .select(`
+              id,
+              document_id,
+              statement_period_start,
+              statement_period_end,
+              opening_balance,
+              closing_balance,
+              total_deposits,
+              total_withdrawals,
+              average_daily_balance,
+              true_revenue,
+              negative_balance_days,
+              nsf_count,
+              transaction_count,
+              account_id,
+              company_id
+            `)
+            .eq('document_id', doc.id)
+            .single(),
+          TIMEOUT_MS.SUPABASE_QUERY,
+          'Fetch statement'
+        )
 
-      if (stmtError && stmtError.code !== 'PGRST116') {
-        console.error('[TestUpload] Statement fetch error:', stmtError)
+        if (stmtError && stmtError.code !== 'PGRST116') {
+          console.error('[TestUpload] Statement fetch error:', stmtError)
+          continue
+        }
+
+        if (!stmt) continue
+
+        // Get company name with timeout
+        const { data: company } = await withTimeout(
+          supabase
+            .from('companies')
+            .select('id, legal_name')
+            .eq('id', stmt.company_id)
+            .single(),
+          TIMEOUT_MS.SUPABASE_QUERY,
+          'Fetch company'
+        )
+
+        // Get account info with timeout
+        const { data: account } = await withTimeout(
+          supabase
+            .from('accounts')
+            .select('id, account_number_display, bank_name')
+            .eq('id', stmt.account_id)
+            .single(),
+          TIMEOUT_MS.SUPABASE_QUERY,
+          'Fetch account'
+        )
+
+        statements.push({
+          document_id: doc.id,
+          filename: doc.filename,
+          statement_period_start: stmt.statement_period_start,
+          statement_period_end: stmt.statement_period_end,
+          company_name: company?.legal_name || 'Unknown',
+          company_id: stmt.company_id,
+          account_number_display: account?.account_number_display || '****',
+          bank_name: account?.bank_name || 'Unknown',
+          opening_balance: stmt.opening_balance,
+          closing_balance: stmt.closing_balance,
+          total_deposits: stmt.total_deposits,
+          total_withdrawals: stmt.total_withdrawals,
+          average_daily_balance: stmt.average_daily_balance,
+          true_revenue: stmt.true_revenue,
+          negative_balance_days: stmt.negative_balance_days,
+          nsf_count: stmt.nsf_count,
+          transaction_count: stmt.transaction_count
+        })
+      } catch (err) {
+        console.error('[TestUpload] Error fetching results for document:', doc.id, err)
+        // Continue with next document instead of failing completely
         continue
       }
-
-      if (!stmt) continue
-
-      // Get company name
-      const { data: company } = await supabase
-        .from('companies')
-        .select('id, legal_name')
-        .eq('id', stmt.company_id)
-        .single()
-
-      // Get account info
-      const { data: account } = await supabase
-        .from('accounts')
-        .select('id, account_number_display, bank_name')
-        .eq('id', stmt.account_id)
-        .single()
-
-      statements.push({
-        document_id: doc.id,
-        filename: doc.filename,
-        statement_period_start: stmt.statement_period_start,
-        statement_period_end: stmt.statement_period_end,
-        company_name: company?.legal_name || 'Unknown',
-        company_id: stmt.company_id,
-        account_number_display: account?.account_number_display || '****',
-        bank_name: account?.bank_name || 'Unknown',
-        opening_balance: stmt.opening_balance,
-        closing_balance: stmt.closing_balance,
-        total_deposits: stmt.total_deposits,
-        total_withdrawals: stmt.total_withdrawals,
-        average_daily_balance: stmt.average_daily_balance,
-        true_revenue: stmt.true_revenue,
-        negative_balance_days: stmt.negative_balance_days,
-        nsf_count: stmt.nsf_count,
-        transaction_count: stmt.transaction_count
-      })
     }
 
     // Calculate months covered

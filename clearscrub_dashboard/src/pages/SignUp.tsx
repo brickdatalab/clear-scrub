@@ -50,14 +50,23 @@ export default function SignUp() {
     setIsSubmitting(true)
     setGlobalError(null)
 
+    const SIGNUP_TIMEOUT_MS = 15000 // 15 seconds for sign up
+
     try {
-      const { data: signupData, error: signUpError } = await supabase.auth.signUp({
+      // Wrap sign up with timeout to prevent infinite loading
+      const signUpPromise = supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Sign up timed out. Please check your connection and try again.')), SIGNUP_TIMEOUT_MS)
+      })
+
+      const { data: signupData, error: signUpError } = await Promise.race([signUpPromise, timeoutPromise])
 
       if (signUpError) throw signUpError
 

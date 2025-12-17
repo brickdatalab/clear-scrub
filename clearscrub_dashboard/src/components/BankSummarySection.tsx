@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { api, type StatementTransaction } from '../services/api'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 interface Transaction {
   period: string
@@ -104,10 +105,14 @@ const BankSummarySection: React.FC<BankSummarySectionProps> = React.memo(({
       return
     }
 
-    // Load transactions from API
+    // Load transactions from API with timeout protection
     setLoadingStatements(prev => ({ ...prev, [cacheKey]: true }))
     try {
-      const txs = await api.getStatementTransactions(statementId)
+      const txs = await withTimeout(
+        api.getStatementTransactions(statementId),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'getStatementTransactions'
+      )
       setLoadedTransactions(prev => ({ ...prev, [cacheKey]: txs }))
 
       const enrichedStatement = {

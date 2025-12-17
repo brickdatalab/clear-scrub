@@ -1,4 +1,5 @@
 import { supabase, waitForSession } from '../lib/supabaseClient'
+import { withTimeout, fetchWithTimeout, TIMEOUT_MS } from '../lib/utils'
 
 /**
  * Custom API Error with optional HTTP status code
@@ -33,13 +34,17 @@ async function invokeWithAuth<T>(functionName: string, body?: Record<string, unk
 
   console.log(`[invokeWithAuth] ${functionName}: Session ready, JWT will be attached`)
 
-  // Call Edge Function with explicit Authorization header
-  const { data, error } = await supabase.functions.invoke(functionName, {
-    body,
-    headers: {
-      Authorization: `Bearer ${session.access_token}`
-    }
-  })
+  // Call Edge Function with explicit Authorization header and timeout
+  const { data, error } = await withTimeout(
+    supabase.functions.invoke(functionName, {
+      body,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
+    }),
+    TIMEOUT_MS.EDGE_FUNCTION,
+    `Edge Function ${functionName}`
+  )
 
   if (error) {
     // Extract status code from error object (Supabase error format can vary)
@@ -383,32 +388,40 @@ export const api = {
       const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
       const filePath = `${companyId || 'unassigned'}/${timestamp}_${sanitizedFilename}`
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('incoming-documents')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
+      // Upload to Supabase Storage with timeout
+      const { data, error } = await withTimeout(
+        supabase.storage
+          .from('incoming-documents')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          }),
+        TIMEOUT_MS.STORAGE_UPLOAD,
+        `Storage upload for ${file.name}`
+      )
 
       if (error) {
         console.error('Storage upload error:', error)
         throw new Error(`Failed to upload ${file.name}: ${error.message}`)
       }
 
-      // Create document record in database
-      const { data: docData, error: docError } = await supabase
-        .from('documents')
-        .insert({
-          company_id: companyId || null,
-          filename: file.name,
-          file_path: data.path,
-          file_size_bytes: file.size,
-          file_type: file.type,
-          status: 'uploaded'
-        })
-        .select('id, filename, file_path')
-        .single()
+      // Create document record in database with timeout
+      const { data: docData, error: docError } = await withTimeout(
+        supabase
+          .from('documents')
+          .insert({
+            company_id: companyId || null,
+            filename: file.name,
+            file_path: data.path,
+            file_size_bytes: file.size,
+            file_type: file.type,
+            status: 'uploaded'
+          })
+          .select('id, filename, file_path')
+          .single(),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'Create document record'
+      )
 
       if (docError) {
         console.error('Document record creation error:', docError)
@@ -428,11 +441,15 @@ export const api = {
    * Fetch documents for a specific company
    */
   async getDocuments(companyId: string): Promise<Document[]> {
-    const { data, error } = await supabase
-      .from('documents')
-      .select('id, company_id, filename, file_size_bytes, status, created_at, file_path')
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false })
+    const { data, error } = await withTimeout(
+      supabase
+        .from('documents')
+        .select('id, company_id, filename, file_size_bytes, status, created_at, file_path')
+        .eq('company_id', companyId)
+        .order('created_at', { ascending: false }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'getDocuments'
+    )
 
     if (error) {
       console.error('API Error (getDocuments):', error)
@@ -473,10 +490,14 @@ export const api = {
       formData.append('files', file)
     })
 
-    // Call Edge Function
-    const { data, error } = await supabase.functions.invoke('upload-documents', {
-      body: formData
-    })
+    // Call Edge Function with timeout
+    const { data, error } = await withTimeout(
+      supabase.functions.invoke('upload-documents', {
+        body: formData
+      }),
+      TIMEOUT_MS.STORAGE_UPLOAD,
+      'uploadDocumentsViaEdgeFunction'
+    )
 
     if (error) {
       console.error('API Error (uploadDocumentsViaEdgeFunction):', error)
@@ -496,11 +517,15 @@ export const api = {
    * @returns Array of triggers ordered by created_at DESC
    */
   async getTriggers(orgId: string): Promise<Trigger[]> {
-    const { data, error } = await supabase
-      .from('triggers')
-      .select('*')
-      .eq('org_id', orgId)
-      .order('created_at', { ascending: false })
+    const { data, error } = await withTimeout(
+      supabase
+        .from('triggers')
+        .select('*')
+        .eq('org_id', orgId)
+        .order('created_at', { ascending: false }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'getTriggers'
+    )
 
     if (error) {
       console.error('API Error (getTriggers):', error)
@@ -523,43 +548,51 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Insert trigger
-    const { data: trigger, error: triggerError } = await supabase
-      .from('triggers')
-      .insert({
-        org_id: orgId,
-        name: ruleConfig.name,
-        description: ruleConfig.description || null,
-        condition_type: ruleConfig.condition_type,
-        condition_value: ruleConfig.condition_value,
-        action_type: ruleConfig.action_type,
-        action_target: ruleConfig.action_target,
-        status: 'active',
-        trigger_count: 0
-      })
-      .select()
-      .single()
+    // Insert trigger with timeout
+    const { data: trigger, error: triggerError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .insert({
+          org_id: orgId,
+          name: ruleConfig.name,
+          description: ruleConfig.description || null,
+          condition_type: ruleConfig.condition_type,
+          condition_value: ruleConfig.condition_value,
+          action_type: ruleConfig.action_type,
+          action_target: ruleConfig.action_target,
+          status: 'active',
+          trigger_count: 0
+        })
+        .select()
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createTrigger'
+    )
 
     if (triggerError) {
       console.error('API Error (createTrigger):', triggerError)
       throw new ApiError(triggerError.message || 'Failed to create trigger', 500)
     }
 
-    // Insert audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: orgId,
-        user_id: session.user.id,
-        action: 'created',
-        resource_type: 'trigger',
-        resource_id: trigger.id,
-        details: {
-          trigger_name: ruleConfig.name,
-          condition_type: ruleConfig.condition_type,
-          action_type: ruleConfig.action_type
-        }
-      })
+    // Insert audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: orgId,
+          user_id: session.user.id,
+          action: 'created',
+          resource_type: 'trigger',
+          resource_id: trigger.id,
+          details: {
+            trigger_name: ruleConfig.name,
+            condition_type: ruleConfig.condition_type,
+            action_type: ruleConfig.action_type
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createTrigger audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (createTrigger audit log):', auditError)
@@ -581,53 +614,65 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing trigger for org_id (needed for audit log)
-    const { data: existingTrigger, error: fetchError } = await supabase
-      .from('triggers')
-      .select('org_id, name')
-      .eq('id', triggerId)
-      .single()
+    // Get existing trigger for org_id (needed for audit log) with timeout
+    const { data: existingTrigger, error: fetchError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .select('org_id, name')
+        .eq('id', triggerId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateTrigger fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (updateTrigger - fetch):', fetchError)
       throw new ApiError(fetchError.message || 'Trigger not found', 404)
     }
 
-    // Update trigger
-    const { error: updateError } = await supabase
-      .from('triggers')
-      .update({
-        name: ruleConfig.name,
-        description: ruleConfig.description || null,
-        condition_type: ruleConfig.condition_type,
-        condition_value: ruleConfig.condition_value,
-        action_type: ruleConfig.action_type,
-        action_target: ruleConfig.action_target,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', triggerId)
+    // Update trigger with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .update({
+          name: ruleConfig.name,
+          description: ruleConfig.description || null,
+          condition_type: ruleConfig.condition_type,
+          condition_value: ruleConfig.condition_value,
+          action_type: ruleConfig.action_type,
+          action_target: ruleConfig.action_target,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', triggerId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateTrigger'
+    )
 
     if (updateError) {
       console.error('API Error (updateTrigger):', updateError)
       throw new ApiError(updateError.message || 'Failed to update trigger', 500)
     }
 
-    // Insert audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingTrigger.org_id,
-        user_id: session.user.id,
-        action: 'updated',
-        resource_type: 'trigger',
-        resource_id: triggerId,
-        details: {
-          old_name: existingTrigger.name,
-          new_name: ruleConfig.name,
-          condition_type: ruleConfig.condition_type,
-          action_type: ruleConfig.action_type
-        }
-      })
+    // Insert audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingTrigger.org_id,
+          user_id: session.user.id,
+          action: 'updated',
+          resource_type: 'trigger',
+          resource_id: triggerId,
+          details: {
+            old_name: existingTrigger.name,
+            new_name: ruleConfig.name,
+            condition_type: ruleConfig.condition_type,
+            action_type: ruleConfig.action_type
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateTrigger audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (updateTrigger audit log):', auditError)
@@ -646,42 +691,54 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing trigger for audit log (before deletion)
-    const { data: existingTrigger, error: fetchError } = await supabase
-      .from('triggers')
-      .select('org_id, name')
-      .eq('id', triggerId)
-      .single()
+    // Get existing trigger for audit log (before deletion) with timeout
+    const { data: existingTrigger, error: fetchError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .select('org_id, name')
+        .eq('id', triggerId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteTrigger fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (deleteTrigger - fetch):', fetchError)
       throw new ApiError(fetchError.message || 'Trigger not found', 404)
     }
 
-    // Delete trigger
-    const { error: deleteError } = await supabase
-      .from('triggers')
-      .delete()
-      .eq('id', triggerId)
+    // Delete trigger with timeout
+    const { error: deleteError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .delete()
+        .eq('id', triggerId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteTrigger'
+    )
 
     if (deleteError) {
       console.error('API Error (deleteTrigger):', deleteError)
       throw new ApiError(deleteError.message || 'Failed to delete trigger', 500)
     }
 
-    // Insert audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingTrigger.org_id,
-        user_id: session.user.id,
-        action: 'deleted',
-        resource_type: 'trigger',
-        resource_id: triggerId,
-        details: {
-          trigger_name: existingTrigger.name
-        }
-      })
+    // Insert audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingTrigger.org_id,
+          user_id: session.user.id,
+          action: 'deleted',
+          resource_type: 'trigger',
+          resource_id: triggerId,
+          details: {
+            trigger_name: existingTrigger.name
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteTrigger audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (deleteTrigger audit log):', auditError)
@@ -701,47 +758,59 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing trigger for audit log
-    const { data: existingTrigger, error: fetchError } = await supabase
-      .from('triggers')
-      .select('org_id, name, status')
-      .eq('id', triggerId)
-      .single()
+    // Get existing trigger for audit log with timeout
+    const { data: existingTrigger, error: fetchError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .select('org_id, name, status')
+        .eq('id', triggerId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'toggleTrigger fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (toggleTrigger - fetch):', fetchError)
       throw new ApiError(fetchError.message || 'Trigger not found', 404)
     }
 
-    // Update trigger status
-    const { error: updateError } = await supabase
-      .from('triggers')
-      .update({
-        status,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', triggerId)
+    // Update trigger status with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('triggers')
+        .update({
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', triggerId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'toggleTrigger'
+    )
 
     if (updateError) {
       console.error('API Error (toggleTrigger):', updateError)
       throw new ApiError(updateError.message || 'Failed to toggle trigger', 500)
     }
 
-    // Insert audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingTrigger.org_id,
-        user_id: session.user.id,
-        action: 'toggled',
-        resource_type: 'trigger',
-        resource_id: triggerId,
-        details: {
-          trigger_name: existingTrigger.name,
-          old_status: existingTrigger.status,
-          new_status: status
-        }
-      })
+    // Insert audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingTrigger.org_id,
+          user_id: session.user.id,
+          action: 'toggled',
+          resource_type: 'trigger',
+          resource_id: triggerId,
+          details: {
+            trigger_name: existingTrigger.name,
+            old_status: existingTrigger.status,
+            new_status: status
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'toggleTrigger audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (toggleTrigger audit log):', auditError)
@@ -760,11 +829,15 @@ export const api = {
    * @returns Array of email notifications ordered by created_at DESC
    */
   async getEmailNotifications(orgId: string): Promise<EmailNotification[]> {
-    const { data, error } = await supabase
-      .from('email_notifications')
-      .select('id, org_id, email, events, status, created_at, updated_at')
-      .eq('org_id', orgId)
-      .order('created_at', { ascending: false })
+    const { data, error } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .select('id, org_id, email, events, status, created_at, updated_at')
+        .eq('org_id', orgId)
+        .order('created_at', { ascending: false }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'getEmailNotifications'
+    )
 
     if (error) {
       console.error('API Error (getEmailNotifications):', error)
@@ -789,17 +862,21 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Insert email notification
-    const { data: notification, error: notificationError } = await supabase
-      .from('email_notifications')
-      .insert({
-        org_id: orgId,
-        email,
-        events,
-        status: 'active'
-      })
-      .select('id, org_id, email, events, status, created_at, updated_at')
-      .single()
+    // Insert email notification with timeout
+    const { data: notification, error: notificationError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .insert({
+          org_id: orgId,
+          email,
+          events,
+          status: 'active'
+        })
+        .select('id, org_id, email, events, status, created_at, updated_at')
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'addEmailNotification'
+    )
 
     if (notificationError) {
       console.error('API Error (addEmailNotification):', notificationError)
@@ -809,21 +886,25 @@ export const api = {
       )
     }
 
-    // Insert audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: orgId,
-        user_id: session.user.id,
-        action: 'created',
-        resource_type: 'email_notification',
-        resource_id: notification.id,
-        details: {
-          email,
-          events,
-          status: 'active'
-        }
-      })
+    // Insert audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: orgId,
+          user_id: session.user.id,
+          action: 'created',
+          resource_type: 'email_notification',
+          resource_id: notification.id,
+          details: {
+            email,
+            events,
+            status: 'active'
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'addEmailNotification audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (addEmailNotification audit log):', auditError)
@@ -846,12 +927,16 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Fetch current notification for audit log (before update)
-    const { data: currentNotification, error: fetchError } = await supabase
-      .from('email_notifications')
-      .select('org_id, email, events')
-      .eq('id', notificationId)
-      .single()
+    // Fetch current notification for audit log (before update) with timeout
+    const { data: currentNotification, error: fetchError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .select('org_id, email, events')
+        .eq('id', notificationId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateEmailNotification fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (updateEmailNotification - fetch):', fetchError)
@@ -861,14 +946,18 @@ export const api = {
       )
     }
 
-    // Update email notification
-    const { error: updateError } = await supabase
-      .from('email_notifications')
-      .update({
-        events,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', notificationId)
+    // Update email notification with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .update({
+          events,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', notificationId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateEmailNotification'
+    )
 
     if (updateError) {
       console.error('API Error (updateEmailNotification):', updateError)
@@ -878,21 +967,25 @@ export const api = {
       )
     }
 
-    // Insert audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: currentNotification.org_id,
-        user_id: session.user.id,
-        action: 'updated',
-        resource_type: 'email_notification',
-        resource_id: notificationId,
-        details: {
-          old_events: currentNotification.events,
-          new_events: events,
-          email: currentNotification.email
-        }
-      })
+    // Insert audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: currentNotification.org_id,
+          user_id: session.user.id,
+          action: 'updated',
+          resource_type: 'email_notification',
+          resource_id: notificationId,
+          details: {
+            old_events: currentNotification.events,
+            new_events: events,
+            email: currentNotification.email
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateEmailNotification audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (updateEmailNotification audit log):', auditError)
@@ -912,12 +1005,16 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Fetch notification details for audit log (before deletion)
-    const { data: notification, error: fetchError } = await supabase
-      .from('email_notifications')
-      .select('org_id, email, events, status')
-      .eq('id', notificationId)
-      .single()
+    // Fetch notification details for audit log (before deletion) with timeout
+    const { data: notification, error: fetchError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .select('org_id, email, events, status')
+        .eq('id', notificationId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'removeEmailNotification fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (removeEmailNotification - fetch):', fetchError)
@@ -927,11 +1024,15 @@ export const api = {
       )
     }
 
-    // Delete email notification
-    const { error: deleteError } = await supabase
-      .from('email_notifications')
-      .delete()
-      .eq('id', notificationId)
+    // Delete email notification with timeout
+    const { error: deleteError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .delete()
+        .eq('id', notificationId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'removeEmailNotification'
+    )
 
     if (deleteError) {
       console.error('API Error (removeEmailNotification):', deleteError)
@@ -941,21 +1042,25 @@ export const api = {
       )
     }
 
-    // Insert audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: notification.org_id,
-        user_id: session.user.id,
-        action: 'deleted',
-        resource_type: 'email_notification',
-        resource_id: notificationId,
-        details: {
-          email: notification.email,
-          events: notification.events,
-          status: notification.status
-        }
-      })
+    // Insert audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: notification.org_id,
+          user_id: session.user.id,
+          action: 'deleted',
+          resource_type: 'email_notification',
+          resource_id: notificationId,
+          details: {
+            email: notification.email,
+            events: notification.events,
+            status: notification.status
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'removeEmailNotification audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (removeEmailNotification audit log):', auditError)
@@ -976,12 +1081,16 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Fetch notification details for audit log and email sending
-    const { data: notification, error: fetchError } = await supabase
-      .from('email_notifications')
-      .select('org_id, email, events, status')
-      .eq('id', notificationId)
-      .single()
+    // Fetch notification details for audit log and email sending with timeout
+    const { data: notification, error: fetchError } = await withTimeout(
+      supabase
+        .from('email_notifications')
+        .select('org_id, email, events, status')
+        .eq('id', notificationId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'testEmailNotification fetch'
+    )
 
     if (fetchError) {
       console.error('API Error (testEmailNotification - fetch):', fetchError)
@@ -995,21 +1104,25 @@ export const api = {
     // For now, just log the action
     console.log(`Test email would be sent to ${notification.email} for notification ${notificationId}`)
 
-    // Insert audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: notification.org_id,
-        user_id: session.user.id,
-        action: 'tested',
-        resource_type: 'email_notification',
-        resource_id: notificationId,
-        details: {
-          email: notification.email,
-          events: notification.events,
-          test_timestamp: new Date().toISOString()
-        }
-      })
+    // Insert audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: notification.org_id,
+          user_id: session.user.id,
+          action: 'tested',
+          resource_type: 'email_notification',
+          resource_id: notificationId,
+          details: {
+            email: notification.email,
+            events: notification.events,
+            test_timestamp: new Date().toISOString()
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'testEmailNotification audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (testEmailNotification audit log):', auditError)
@@ -1028,11 +1141,15 @@ export const api = {
    * @returns Array of webhooks ordered by created_at DESC
    */
   async getWebhooks(orgId: string): Promise<Webhook[]> {
-    const { data, error } = await supabase
-      .from('webhooks')
-      .select('id, org_id, name, url, events, status, secret, last_triggered_at, failure_count, created_at, updated_at')
-      .eq('org_id', orgId)
-      .order('created_at', { ascending: false })
+    const { data, error } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .select('id, org_id, name, url, events, status, secret, last_triggered_at, failure_count, created_at, updated_at')
+        .eq('org_id', orgId)
+        .order('created_at', { ascending: false }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'getWebhooks'
+    )
 
     if (error) {
       console.error('API Error (getWebhooks):', error)
@@ -1066,46 +1183,54 @@ export const api = {
       .map(b => b.toString(16).padStart(2, '0'))
       .join('')
 
-    // Insert webhook
-    const { data: webhook, error: webhookError } = await supabase
-      .from('webhooks')
-      .insert({
-        org_id: orgId,
-        name,
-        url,
-        events,
-        secret,
-        status: 'active',
-        failure_count: 0
-      })
-      .select()
-      .single()
+    // Insert webhook with timeout
+    const { data: webhook, error: webhookError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .insert({
+          org_id: orgId,
+          name,
+          url,
+          events,
+          secret,
+          status: 'active',
+          failure_count: 0
+        })
+        .select()
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createWebhook'
+    )
 
     if (webhookError) {
       console.error('API Error (createWebhook):', webhookError)
       throw new ApiError(webhookError.message || 'Failed to create webhook', 500)
     }
 
-    // Write to audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: orgId,
-        user_id: session.user.id,
-        action: 'created',
-        resource_type: 'webhook',
-        resource_id: webhook.id,
-        new_values: {
-          name,
-          url,
-          events,
-          status: 'active'
-        },
-        metadata: {
-          secret_generated: true
-        },
-        timestamp: new Date().toISOString()
-      })
+    // Write to audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: orgId,
+          user_id: session.user.id,
+          action: 'created',
+          resource_type: 'webhook',
+          resource_id: webhook.id,
+          new_values: {
+            name,
+            url,
+            events,
+            status: 'active'
+          },
+          metadata: {
+            secret_generated: true
+          },
+          timestamp: new Date().toISOString()
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createWebhook audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (createWebhook audit log):', auditError)
@@ -1137,50 +1262,62 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get current webhook state for audit log
-    const { data: currentWebhook, error: fetchError } = await supabase
-      .from('webhooks')
-      .select('*')
-      .eq('id', webhookId)
-      .single()
+    // Get current webhook state for audit log with timeout
+    const { data: currentWebhook, error: fetchError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .select('*')
+        .eq('id', webhookId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateWebhook fetch'
+    )
 
     if (fetchError || !currentWebhook) {
       console.error('API Error (updateWebhook fetch):', fetchError)
       throw new ApiError('Webhook not found', 404)
     }
 
-    // Update webhook
-    const { error: updateError } = await supabase
-      .from('webhooks')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', webhookId)
+    // Update webhook with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', webhookId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateWebhook'
+    )
 
     if (updateError) {
       console.error('API Error (updateWebhook):', updateError)
       throw new ApiError(updateError.message || 'Failed to update webhook', 500)
     }
 
-    // Write to audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: currentWebhook.org_id,
-        user_id: session.user.id,
-        action: 'updated',
-        resource_type: 'webhook',
-        resource_id: webhookId,
-        old_values: {
-          name: currentWebhook.name,
-          url: currentWebhook.url,
-          events: currentWebhook.events,
-          status: currentWebhook.status
-        },
-        new_values: updates,
-        timestamp: new Date().toISOString()
-      })
+    // Write to audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: currentWebhook.org_id,
+          user_id: session.user.id,
+          action: 'updated',
+          resource_type: 'webhook',
+          resource_id: webhookId,
+          old_values: {
+            name: currentWebhook.name,
+            url: currentWebhook.url,
+            events: currentWebhook.events,
+            status: currentWebhook.status
+          },
+          new_values: updates,
+          timestamp: new Date().toISOString()
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'updateWebhook audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (updateWebhook audit log):', auditError)
@@ -1201,46 +1338,58 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get webhook for audit log before deletion
-    const { data: webhook, error: fetchError } = await supabase
-      .from('webhooks')
-      .select('*')
-      .eq('id', webhookId)
-      .single()
+    // Get webhook for audit log before deletion with timeout
+    const { data: webhook, error: fetchError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .select('*')
+        .eq('id', webhookId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteWebhook fetch'
+    )
 
     if (fetchError || !webhook) {
       console.error('API Error (deleteWebhook fetch):', fetchError)
       throw new ApiError('Webhook not found', 404)
     }
 
-    // Delete webhook (hard delete, not soft)
-    const { error: deleteError } = await supabase
-      .from('webhooks')
-      .delete()
-      .eq('id', webhookId)
+    // Delete webhook (hard delete, not soft) with timeout
+    const { error: deleteError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .delete()
+        .eq('id', webhookId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteWebhook'
+    )
 
     if (deleteError) {
       console.error('API Error (deleteWebhook):', deleteError)
       throw new ApiError(deleteError.message || 'Failed to delete webhook', 500)
     }
 
-    // Write to audit log
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: webhook.org_id,
-        user_id: session.user.id,
-        action: 'deleted',
-        resource_type: 'webhook',
-        resource_id: webhookId,
-        old_values: {
-          name: webhook.name,
-          url: webhook.url,
-          events: webhook.events,
-          status: webhook.status
-        },
-        timestamp: new Date().toISOString()
-      })
+    // Write to audit log with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: webhook.org_id,
+          user_id: session.user.id,
+          action: 'deleted',
+          resource_type: 'webhook',
+          resource_id: webhookId,
+          old_values: {
+            name: webhook.name,
+            url: webhook.url,
+            events: webhook.events,
+            status: webhook.status
+          },
+          timestamp: new Date().toISOString()
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteWebhook audit log'
+    )
 
     if (auditError) {
       console.error('API Warning (deleteWebhook audit log):', auditError)
@@ -1261,12 +1410,16 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get webhook details
-    const { data: webhook, error: fetchError } = await supabase
-      .from('webhooks')
-      .select('*')
-      .eq('id', webhookId)
-      .single()
+    // Get webhook details with timeout
+    const { data: webhook, error: fetchError } = await withTimeout(
+      supabase
+        .from('webhooks')
+        .select('*')
+        .eq('id', webhookId)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'testWebhook fetch'
+    )
 
     if (fetchError || !webhook) {
       console.error('API Error (testWebhook fetch):', fetchError)
@@ -1284,9 +1437,9 @@ export const api = {
       }
     }
 
-    // Send HTTP POST to webhook URL
+    // Send HTTP POST to webhook URL with AbortController timeout
     try {
-      const response = await fetch(webhook.url, {
+      const response = await fetchWithTimeout(webhook.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1294,34 +1447,42 @@ export const api = {
           'User-Agent': 'ClearScrub-Webhooks/1.0'
         },
         body: JSON.stringify(testPayload)
-      })
+      }, TIMEOUT_MS.EXTERNAL_HTTP)
 
       const responseData = await response.text()
 
-      // Update last_triggered_at
-      await supabase
-        .from('webhooks')
-        .update({
-          last_triggered_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', webhookId)
+      // Update last_triggered_at with timeout
+      await withTimeout(
+        supabase
+          .from('webhooks')
+          .update({
+            last_triggered_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', webhookId),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'testWebhook update last_triggered_at'
+      )
 
-      // Write to audit log
-      const { error: auditError } = await supabase
-        .from('audit_log')
-        .insert({
-          org_id: webhook.org_id,
-          user_id: session.user.id,
-          action: 'tested',
-          resource_type: 'webhook',
-          resource_id: webhookId,
-          metadata: {
-            http_status: response.status,
-            success: response.ok
-          },
-          timestamp: new Date().toISOString()
-        })
+      // Write to audit log with timeout
+      const { error: auditError } = await withTimeout(
+        supabase
+          .from('audit_log')
+          .insert({
+            org_id: webhook.org_id,
+            user_id: session.user.id,
+            action: 'tested',
+            resource_type: 'webhook',
+            resource_id: webhookId,
+            metadata: {
+              http_status: response.status,
+              success: response.ok
+            },
+            timestamp: new Date().toISOString()
+          }),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'testWebhook audit log'
+      )
 
       if (auditError) {
         console.error('API Warning (testWebhook audit log):', auditError)
@@ -1339,21 +1500,25 @@ export const api = {
     } catch (error: any) {
       console.error('API Error (testWebhook HTTP request):', error)
 
-      // Write failed test to audit log
-      await supabase
-        .from('audit_log')
-        .insert({
-          org_id: webhook.org_id,
-          user_id: session.user.id,
-          action: 'tested',
-          resource_type: 'webhook',
-          resource_id: webhookId,
-          metadata: {
-            success: false,
-            error: error.message
-          },
-          timestamp: new Date().toISOString()
-        })
+      // Write failed test to audit log with timeout
+      await withTimeout(
+        supabase
+          .from('audit_log')
+          .insert({
+            org_id: webhook.org_id,
+            user_id: session.user.id,
+            action: 'tested',
+            resource_type: 'webhook',
+            resource_id: webhookId,
+            metadata: {
+              success: false,
+              error: error.message
+            },
+            timestamp: new Date().toISOString()
+          }),
+        TIMEOUT_MS.SUPABASE_QUERY,
+        'testWebhook failed audit log'
+      )
 
       return {
         success: false,
@@ -1375,12 +1540,16 @@ export const api = {
    * @returns Array of API keys
    */
   async getApiKeys(orgId: string): Promise<ApiKey[]> {
-    const { data, error } = await supabase
-      .from('api_keys')
-      .select('id, org_id, key_name, prefix, is_default, is_active, last_used_at, created_at')
-      .eq('org_id', orgId)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
+    const { data, error } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .select('id, org_id, key_name, prefix, is_default, is_active, last_used_at, created_at')
+        .eq('org_id', orgId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'getApiKeys'
+    )
 
     if (error) {
       console.error('API Error (getApiKeys):', error)
@@ -1422,39 +1591,47 @@ export const api = {
     const hashArray = Array.from(new Uint8Array(hashBuffer))
     const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 
-    // Insert API key into database
-    const { data: insertData, error: insertError } = await supabase
-      .from('api_keys')
-      .insert({
-        org_id: orgId,
-        key_name: name,
-        key_hash: keyHash,
-        prefix: prefix,
-        is_default: false,
-        is_active: true
-      })
-      .select('id, prefix')
-      .single()
+    // Insert API key into database with timeout
+    const { data: insertData, error: insertError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .insert({
+          org_id: orgId,
+          key_name: name,
+          key_hash: keyHash,
+          prefix: prefix,
+          is_default: false,
+          is_active: true
+        })
+        .select('id, prefix')
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createApiKey'
+    )
 
     if (insertError) {
       console.error('API Error (createApiKey - insert):', insertError)
       throw new ApiError(insertError.message || 'Failed to create API key', 500)
     }
 
-    // Create audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: orgId,
-        user_id: session.user.id,
-        action: 'created',
-        resource_type: 'api_key',
-        resource_id: insertData.id,
-        metadata: {
-          key_name: name,
-          prefix: prefix
-        }
-      })
+    // Create audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: orgId,
+          user_id: session.user.id,
+          action: 'created',
+          resource_type: 'api_key',
+          resource_id: insertData.id,
+          metadata: {
+            key_name: name,
+            prefix: prefix
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'createApiKey audit log'
+    )
 
     if (auditError) {
       console.error('Audit log error (createApiKey):', auditError)
@@ -1481,13 +1658,17 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing key to verify ownership and get org_id
-    const { data: existingKey, error: fetchError } = await supabase
-      .from('api_keys')
-      .select('id, org_id, key_name, prefix')
-      .eq('id', keyId)
-      .is('deleted_at', null)
-      .single()
+    // Get existing key to verify ownership and get org_id with timeout
+    const { data: existingKey, error: fetchError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .select('id, org_id, key_name, prefix')
+        .eq('id', keyId)
+        .is('deleted_at', null)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'regenerateApiKey fetch'
+    )
 
     if (fetchError || !existingKey) {
       console.error('API Error (regenerateApiKey - fetch):', fetchError)
@@ -1509,34 +1690,42 @@ export const api = {
     const hashArray = Array.from(new Uint8Array(hashBuffer))
     const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 
-    // Update key hash in database
-    const { error: updateError } = await supabase
-      .from('api_keys')
-      .update({
-        key_hash: keyHash,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', keyId)
+    // Update key hash in database with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .update({
+          key_hash: keyHash,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', keyId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'regenerateApiKey'
+    )
 
     if (updateError) {
       console.error('API Error (regenerateApiKey - update):', updateError)
       throw new ApiError(updateError.message || 'Failed to regenerate API key', 500)
     }
 
-    // Create audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingKey.org_id,
-        user_id: session.user.id,
-        action: 'regenerated',
-        resource_type: 'api_key',
-        resource_id: keyId,
-        metadata: {
-          key_name: existingKey.key_name,
-          prefix: existingKey.prefix
-        }
-      })
+    // Create audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingKey.org_id,
+          user_id: session.user.id,
+          action: 'regenerated',
+          resource_type: 'api_key',
+          resource_id: keyId,
+          metadata: {
+            key_name: existingKey.key_name,
+            prefix: existingKey.prefix
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'regenerateApiKey audit log'
+    )
 
     if (auditError) {
       console.error('Audit log error (regenerateApiKey):', auditError)
@@ -1560,47 +1749,59 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing key to verify ownership and get org_id
-    const { data: existingKey, error: fetchError } = await supabase
-      .from('api_keys')
-      .select('id, org_id, key_name, prefix')
-      .eq('id', keyId)
-      .is('deleted_at', null)
-      .single()
+    // Get existing key to verify ownership and get org_id with timeout
+    const { data: existingKey, error: fetchError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .select('id, org_id, key_name, prefix')
+        .eq('id', keyId)
+        .is('deleted_at', null)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'revokeApiKey fetch'
+    )
 
     if (fetchError || !existingKey) {
       console.error('API Error (revokeApiKey - fetch):', fetchError)
       throw new ApiError('API key not found', 404)
     }
 
-    // Revoke the key
-    const { error: updateError } = await supabase
-      .from('api_keys')
-      .update({
-        is_active: false,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', keyId)
+    // Revoke the key with timeout
+    const { error: updateError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', keyId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'revokeApiKey'
+    )
 
     if (updateError) {
       console.error('API Error (revokeApiKey - update):', updateError)
       throw new ApiError(updateError.message || 'Failed to revoke API key', 500)
     }
 
-    // Create audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingKey.org_id,
-        user_id: session.user.id,
-        action: 'revoked',
-        resource_type: 'api_key',
-        resource_id: keyId,
-        metadata: {
-          key_name: existingKey.key_name,
-          prefix: existingKey.prefix
-        }
-      })
+    // Create audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingKey.org_id,
+          user_id: session.user.id,
+          action: 'revoked',
+          resource_type: 'api_key',
+          resource_id: keyId,
+          metadata: {
+            key_name: existingKey.key_name,
+            prefix: existingKey.prefix
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'revokeApiKey audit log'
+    )
 
     if (auditError) {
       console.error('Audit log error (revokeApiKey):', auditError)
@@ -1620,13 +1821,17 @@ export const api = {
       throw new ApiError('Unauthorized: Please log in to continue', 401)
     }
 
-    // Get existing key to verify ownership, check if default, and get org_id
-    const { data: existingKey, error: fetchError } = await supabase
-      .from('api_keys')
-      .select('id, org_id, key_name, prefix, is_default')
-      .eq('id', keyId)
-      .is('deleted_at', null)
-      .single()
+    // Get existing key to verify ownership, check if default, and get org_id with timeout
+    const { data: existingKey, error: fetchError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .select('id, org_id, key_name, prefix, is_default')
+        .eq('id', keyId)
+        .is('deleted_at', null)
+        .single(),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteApiKey fetch'
+    )
 
     if (fetchError || !existingKey) {
       console.error('API Error (deleteApiKey - fetch):', fetchError)
@@ -1638,33 +1843,41 @@ export const api = {
       throw new ApiError('Cannot delete default API key', 400)
     }
 
-    // Soft delete the key
-    const { error: deleteError } = await supabase
-      .from('api_keys')
-      .update({
-        deleted_at: new Date().toISOString()
-      })
-      .eq('id', keyId)
+    // Soft delete the key with timeout
+    const { error: deleteError } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .update({
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', keyId),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteApiKey'
+    )
 
     if (deleteError) {
       console.error('API Error (deleteApiKey - update):', deleteError)
       throw new ApiError(deleteError.message || 'Failed to delete API key', 500)
     }
 
-    // Create audit log entry
-    const { error: auditError } = await supabase
-      .from('audit_log')
-      .insert({
-        org_id: existingKey.org_id,
-        user_id: session.user.id,
-        action: 'deleted',
-        resource_type: 'api_key',
-        resource_id: keyId,
-        metadata: {
-          key_name: existingKey.key_name,
-          prefix: existingKey.prefix
-        }
-      })
+    // Create audit log entry with timeout
+    const { error: auditError } = await withTimeout(
+      supabase
+        .from('audit_log')
+        .insert({
+          org_id: existingKey.org_id,
+          user_id: session.user.id,
+          action: 'deleted',
+          resource_type: 'api_key',
+          resource_id: keyId,
+          metadata: {
+            key_name: existingKey.key_name,
+            prefix: existingKey.prefix
+          }
+        }),
+      TIMEOUT_MS.SUPABASE_QUERY,
+      'deleteApiKey audit log'
+    )
 
     if (auditError) {
       console.error('Audit log error (deleteApiKey):', auditError)

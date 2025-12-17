@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { api, type CompanyDetailResponse } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
+import { withTimeout, TIMEOUT_MS } from '../lib/utils'
 
 interface Address {
   address_line_1: string
@@ -582,7 +583,11 @@ export default function CompanyDetail() {
     try {
       setLoading(true)
       setError(null)
-      const data = await api.getCompanyDetail(companyId)
+      const data = await withTimeout(
+        api.getCompanyDetail(companyId),
+        TIMEOUT_MS.EDGE_FUNCTION,
+        'getCompanyDetail'
+      )
       setCompanyData(data)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load company details'
