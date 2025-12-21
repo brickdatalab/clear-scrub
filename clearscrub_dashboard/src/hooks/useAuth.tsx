@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import type { User, Session } from '@supabase/supabase-js'
 import type { AuthUser } from '../types/auth'
@@ -75,6 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [authReady, setAuthReady] = useState(false)
+
+  // Ref to prevent duplicate profile fetches (StrictMode causes double-mount)
+  const profileFetchedRef = useRef(false)
 
   /**
    * Fetch org_id from profiles table for the given user
@@ -174,8 +177,12 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       setSession(session)
 
       if (session?.user) {
-        const authUser = await fetchUserWithOrgId(session.user)
-        setUser(authUser)
+        // Only fetch profile if not already fetched (prevents StrictMode double-fetch)
+        if (!profileFetchedRef.current) {
+          profileFetchedRef.current = true
+          const authUser = await fetchUserWithOrgId(session.user)
+          setUser(authUser)
+        }
 
         // Ready once we have a session. org_id may be null for new users.
         setAuthReady(!!session)
@@ -196,9 +203,17 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     })
 
     // Listen for auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (import.meta.env.DEV) {
-        console.log('[useAuth] Auth state changed:', _event)
+        console.log('[useAuth] Auth state changed:', event)
+      }
+
+      // Skip INITIAL_SESSION and first SIGNED_IN if we already fetched profile via getSession
+      if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && profileFetchedRef.current) {
+        if (import.meta.env.DEV) {
+          console.log('[useAuth] Skipping duplicate profile fetch for event:', event)
+        }
+        return
       }
 
       setSession(session)
@@ -208,6 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
         setAuthReady(false)
 
         // Fetch fresh org_id on auth state change
+        profileFetchedRef.current = true
         const authUser = await fetchUserWithOrgId(session.user)
         setUser(authUser)
 
@@ -218,6 +234,8 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
           console.log('[useAuth] authReady:', !!session, '(session loaded, org_id may be null)')
         }
       } else {
+        // User signed out - reset the flag so next sign-in fetches profile
+        profileFetchedRef.current = false
         setUser(null)
         setAuthReady(false)
 

@@ -22,56 +22,47 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
  * @returns Session if available, null if timeout or no session
  */
 export async function waitForSession(): Promise<Session | null> {
-  // Fast path: Check if session is immediately available
+  // Fast path: Check if session is immediately available (from localStorage cache)
   const { data: { session } } = await supabase.auth.getSession()
   if (session) {
-    console.log('[waitForSession] Session immediately available')
+    if (import.meta.env.DEV) {
+      console.log('[waitForSession] Session immediately available')
+    }
     return session
   }
 
-  console.log('[waitForSession] Waiting for session...')
+  // Session not immediately available - wait briefly for auth state
+  // This handles the case where localStorage is still being parsed
+  if (import.meta.env.DEV) {
+    console.log('[waitForSession] Waiting briefly for session...')
+  }
 
-  // Slow path: Wait for session to load via onAuthStateChange
   return new Promise((resolve) => {
+    const timeout = 500 // 500ms is plenty for localStorage hydration
     let resolved = false
-    const timeout = 5000 // 5 second timeout
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!resolved && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         resolved = true
-        console.log('[waitForSession] Session loaded via onAuthStateChange')
+        if (import.meta.env.DEV) {
+          console.log('[waitForSession] Session loaded via onAuthStateChange')
+        }
         subscription.unsubscribe()
         resolve(session)
       }
     })
 
-    // Timeout fallback
-    const timeoutId = setTimeout(() => {
+    // Timeout fallback - no session available
+    setTimeout(() => {
       if (!resolved) {
         resolved = true
-        console.warn('[waitForSession] Timeout waiting for session')
+        if (import.meta.env.DEV) {
+          console.log('[waitForSession] No session available after timeout')
+        }
         subscription.unsubscribe()
         resolve(null)
       }
     }, timeout)
-
-    // Check session periodically in case onAuthStateChange doesn't fire
-    const checkInterval = setInterval(async () => {
-      if (resolved) {
-        clearInterval(checkInterval)
-        return
-      }
-
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        resolved = true
-        clearTimeout(timeoutId)
-        clearInterval(checkInterval)
-        console.log('[waitForSession] Session found via interval check')
-        subscription.unsubscribe()
-        resolve(session)
-      }
-    }, 100)
   })
 }

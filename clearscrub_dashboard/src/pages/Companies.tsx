@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { api, type CompanyListItem } from '../services/api'
@@ -10,17 +10,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
 import { AddCompanyModal } from '@/components/AddCompanyModal'
 
-/**
- * Timeout wrapper for promises to prevent infinite loading
- * @param p Promise to wrap
- * @param ms Timeout in milliseconds (default: 12000ms = 12 seconds)
- */
-const withTimeout = <T,>(p: Promise<T>, ms = 12000) =>
-  Promise.race<T>([
-    p,
-    new Promise<T>((_, r) => setTimeout(() => r(new Error('Request timed out')), ms))
-  ])
-
 export default function Companies() {
   const navigate = useNavigate()
   const [companies, setCompanies] = useState<CompanyListItem[]>([])
@@ -29,21 +18,47 @@ export default function Companies() {
   const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false)
   const enableAddCompany = import.meta.env.VITE_ENABLE_ADD_COMPANY === 'true'
 
+  // Ref to prevent StrictMode double-fetch
+  const fetchStartedRef = useRef(false)
+
   // Load companies on mount
   useEffect(() => {
+    // Skip if already fetching (prevents StrictMode double-fetch)
+    if (fetchStartedRef.current) {
+      if (import.meta.env.DEV) {
+        console.log('[Companies] Skipping duplicate fetch')
+      }
+      return
+    }
+    fetchStartedRef.current = true
+
+    let isMounted = true
+
     async function loadCompanies() {
       try {
         setIsLoading(true)
         setError(null)
-        const data = await withTimeout(api.getCompanies(1, 50))
-        setCompanies(data.companies || [])
+        const data = await api.getCompanies(1, 50)
+
+        if (isMounted) {
+          setCompanies(data.companies || [])
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load companies')
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to load companies')
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
+
     loadCompanies()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   // Handle row click to navigate to company detail
