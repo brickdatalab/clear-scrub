@@ -99,7 +99,10 @@ export const companyColumns: ColumnDef<CompanyColumn>[] = [
     accessorKey: 'file_status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.original.file_status as 'completed' | 'processing' | 'failed'
+      const status = row.original.file_status as 'completed' | 'processing' | 'failed' | undefined
+      if (!status) {
+        return <Badge variant="outline">Unknown</Badge>
+      }
       const variant = getStatusVariant(status)
       const label = status.charAt(0).toUpperCase() + status.slice(1)
 

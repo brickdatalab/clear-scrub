@@ -484,27 +484,39 @@ export const api = {
       failed: number
     }
   }> {
+    // Get auth token
+    const { data: sessionData } = await supabase.auth.getSession()
+    if (!sessionData.session?.access_token) {
+      throw new Error('No authentication token available')
+    }
+
     // Create FormData with files
     const formData = new FormData()
     files.forEach((file) => {
       formData.append('files', file)
     })
 
-    // Call Edge Function with timeout
-    const { data, error } = await withTimeout(
-      supabase.functions.invoke('upload-documents', {
-        body: formData
-      }),
-      TIMEOUT_MS.STORAGE_UPLOAD,
-      'uploadDocumentsViaEdgeFunction'
+    // Use fetch directly - supabase.functions.invoke() doesn't handle FormData correctly
+    const response = await fetchWithTimeout(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-documents`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionData.session.access_token}`,
+        },
+        // Don't set Content-Type - browser will set it with boundary for FormData
+        body: formData,
+      },
+      TIMEOUT_MS.STORAGE_UPLOAD
     )
 
-    if (error) {
-      console.error('API Error (uploadDocumentsViaEdgeFunction):', error)
-      throw new Error(error.message || 'Failed to upload documents')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('API Error (uploadDocumentsViaEdgeFunction):', errorData)
+      throw new Error(errorData.error?.message || `Upload failed with status ${response.status}`)
     }
 
-    return data
+    return response.json()
   },
 
   // ============================================================================

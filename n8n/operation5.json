@@ -153,6 +153,10 @@
             {
               "name": "X-Webhook-Secret",
               "value": "clearscrub_webhook_2025_xyz123"
+            },
+            {
+              "name": "x-clearscrub-timestamp",
+              "value": "={{ Date.now() }}"
             }
           ]
         },
@@ -164,8 +168,40 @@
               "value": "={{ $json.id }}"
             },
             {
+              "name": "submission_id",
+              "value": "={{ $json.submission_id }}"
+            },
+            {
+              "name": "org_id",
+              "value": "={{ $json.org_id }}"
+            },
+            {
+              "name": "file_path",
+              "value": "={{ $json.file_path }}"
+            },
+            {
+              "name": "llama_job_id",
+              "value": "={{ $('edit_fields').item.json.job_id }}"
+            },
+            {
               "name": "extracted_data",
-              "value": "={{ $('get_schema').item.json.data.statement.toJsonString() }}"
+              "value": "={{ $('get_schema').item.json.data.statement }}"
+            },
+            {
+              "name": "partial_success",
+              "value": "={{ $json.partial_success || false }}"
+            },
+            {
+              "name": "extraction_errors",
+              "value": "={{ $json.extraction_errors || [] }}"
+            },
+            {
+              "name": "run_id",
+              "value": "={{ $execution.id }}"
+            },
+            {
+              "name": "workflow_version",
+              "value": "={{ $workflow.id }}"
             }
           ]
         },

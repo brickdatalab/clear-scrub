@@ -20,6 +20,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarHeader,
 } from '@/components/ui/sidebar'
 import { Link } from 'react-router-dom'
 
@@ -100,6 +101,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
+      {/* Logo Header */}
+      <SidebarHeader>
+        <Link to="/companies" className="flex items-center gap-2 px-2 py-2">
+          <img
+            src="/assets/logos/logo-small.png"
+            alt="ClearScrub"
+            className="h-8 w-8"
+          />
+          <span className="text-sm font-semibold text-foreground group-data-[collapsible=icon]:hidden">
+            ClearScrub
+          </span>
+        </Link>
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>

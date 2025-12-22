@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { Search, Bell, ChevronDown, LogOut, Settings } from 'lucide-react'
+import { Search, Bell, LogOut, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { SidebarTrigger } from '@/components/ui/sidebar'
 
 // TODO: Replace with real notifications API call
 // const getFailedCompanies = async () => {
@@ -34,25 +33,12 @@ export default function TopBar() {
   const unreadCount = failedCompanies.length
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
-      {/* Left Section: Sidebar Toggle + Brand */}
-      <div className="flex items-center gap-3">
-        {/* Sidebar Toggle - Works on both mobile and desktop */}
-        <SidebarTrigger />
-
-        <div className="flex items-center gap-2">
-          <img
-            src="/assets/logos/logo-small.png"
-            alt="ClearScrub"
-            className="h-8 w-auto"
-          />
-          <span className="text-sm font-semibold text-foreground hidden sm:block">ClearScrub</span>
-          <ChevronDown className="w-3 h-3 text-muted-foreground hidden sm:block" />
-        </div>
-      </div>
+    <header className="sticky top-0 z-50 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:px-6">
+      {/* Left Spacer */}
+      <div className="flex-1" />
 
       {/* Center Section: Search */}
-      <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
+      <div className="hidden md:flex w-full max-w-md">
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-gray-400" />
@@ -65,7 +51,10 @@ export default function TopBar() {
         </div>
       </div>
 
-      {/* Right Section: Controls */}
+      {/* Right Spacer */}
+      <div className="flex-1" />
+
+      {/* Right Section: Notifications + User */}
       <div className="flex items-center gap-2 lg:gap-4">
         {/* Notifications Bell */}
         <div className="relative">
