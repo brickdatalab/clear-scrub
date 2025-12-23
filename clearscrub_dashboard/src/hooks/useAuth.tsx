@@ -111,17 +111,17 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       }
 
       // Refresh cache in background (don't await)
-      supabase
-        .from('profiles')
-        .select('org_id')
-        .eq('id', supabaseUser.id)
-        .single()
-        .then(({ data: profile }) => {
-          if (profile?.org_id && profile.org_id !== cachedOrgId) {
-            localStorage.setItem(cacheKey, profile.org_id)
-          }
-        })
-        .catch(() => {}) // Ignore background refresh errors
+      Promise.resolve(
+        supabase
+          .from('profiles')
+          .select('org_id')
+          .eq('id', supabaseUser.id)
+          .single()
+      ).then(({ data: profile }) => {
+        if (profile?.org_id && profile.org_id !== cachedOrgId) {
+          localStorage.setItem(cacheKey, profile.org_id)
+        }
+      }).catch(() => {}) // Ignore background refresh errors
 
       return cachedUser
     }
