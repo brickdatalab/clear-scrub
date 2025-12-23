@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AuthProvider } from './hooks/useAuth'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppShell from './layouts/AppShell'
@@ -24,6 +25,7 @@ const TestUpload = lazy(() => import('./pages/TestUpload'))
 function App() {
   return (
     <AuthProvider>
+      <SpeedInsights />
       <Router>
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-screen">
