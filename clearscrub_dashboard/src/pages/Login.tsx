@@ -19,7 +19,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch
   } = useForm({
     resolver: zodResolver(loginSchema),
@@ -32,6 +32,7 @@ export default function Login() {
   })
 
   const rememberMeValue = watch('rememberMe')
+  const passwordValue = watch('password')
 
   // Redirect if already authenticated (AFTER all hooks)
   if (isAuthenticated) {
@@ -161,7 +162,7 @@ export default function Login() {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={!isValid || isSubmitting}
+              disabled={!passwordValue || isSubmitting}
               className="w-full"
             >
               {isSubmitting ? (
