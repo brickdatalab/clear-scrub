@@ -1,6 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { type CompanyListItem } from '@/services/api'
 
 /**
@@ -10,33 +9,41 @@ import { type CompanyListItem } from '@/services/api'
 export type CompanyColumn = CompanyListItem
 
 /**
- * Status badge styling based on file_status
- * Maps status values to Badge variant colors
+ * Status badge styling based on submission status
  */
 const getStatusVariant = (
-  status: 'completed' | 'processing' | 'failed'
+  status: string
 ): 'default' | 'secondary' | 'destructive' | 'outline' => {
-  const variants: Record<
-    'completed' | 'processing' | 'failed',
-    'default' | 'secondary' | 'destructive' | 'outline'
-  > = {
+  const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     completed: 'default',
     processing: 'secondary',
+    received: 'outline',
     failed: 'destructive',
   }
-  return variants[status]
+  return variants[status] || 'outline'
 }
 
 /**
- * Format date to MM/DD/YYYY format
+ * Format date to relative time or date format
  */
 const formatDate = (dateString: string): string => {
   try {
     const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    
     return date.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
     })
   } catch {
     return dateString
@@ -45,28 +52,7 @@ const formatDate = (dateString: string): string => {
 
 /**
  * Company columns for DataTable
- * Includes: name, status, creation date, and last activity
- *
- * Features:
- * - Name column: sortable, searchable, globally filterable
- * - Status column: Badge with color coding (completed=default, processing=secondary, failed=destructive)
- * - Created column: date format, sortable
- * - Last Activity column: date format, sortable
- * - Row click navigation handled by DataTable's onRowClick prop
- *
- * @example
- * import { companyColumns } from '@/components/companies/columns'
- * import { DataTable } from '@/components/data-table'
- *
- * <DataTable
- *   columns={companyColumns}
- *   data={companies}
- *   pageSize={20}
- *   onRowClick={(company) => navigate(`/companies/${company.company_id}`)}
- *   isLoading={loading}
- *   globalFilterColumn="name"
- *   emptyMessage="No companies found"
- * />
+ * Displays submissions with company info, file processing status, and dates
  */
 export const companyColumns: ColumnDef<CompanyColumn>[] = [
   {
@@ -77,7 +63,7 @@ export const companyColumns: ColumnDef<CompanyColumn>[] = [
         className="flex items-center gap-2 font-medium hover:text-foreground/80 transition-colors"
         aria-label="Toggle sort by company name"
       >
-        Company Name
+        Company
         <span className="text-xs opacity-50">
           {column.getIsSorted() === 'asc' ? '↑' : column.getIsSorted() === 'desc' ? '↓' : '⇅'}
         </span>
@@ -85,9 +71,13 @@ export const companyColumns: ColumnDef<CompanyColumn>[] = [
     ),
     cell: ({ row }) => {
       const name = row.original.name
+      const submissionId = row.original.submission_id
       return (
-        <div className="font-medium text-sm">
-          {name}
+        <div>
+          <div className="font-medium text-sm">{name}</div>
+          <div className="text-xs text-muted-foreground font-mono">
+            {submissionId.slice(0, 8)}...
+          </div>
         </div>
       )
     },
@@ -96,13 +86,31 @@ export const companyColumns: ColumnDef<CompanyColumn>[] = [
     filterFn: 'includesString',
   },
   {
-    accessorKey: 'file_status',
+    accessorKey: 'files',
+    header: 'Files',
+    cell: ({ row }) => {
+      const processed = row.original.files_processed || 0
+      const total = row.original.files_total || 0
+      const isComplete = processed >= total && total > 0
+      
+      return (
+        <div className="flex items-center gap-2">
+          <span className={`text-sm ${isComplete ? 'text-green-600' : 'text-muted-foreground'}`}>
+            {processed} / {total}
+          </span>
+          {isComplete && total > 0 && (
+            <span className="text-green-600 text-xs">✓</span>
+          )}
+        </div>
+      )
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.original.file_status as 'completed' | 'processing' | 'failed' | undefined
-      if (!status) {
-        return <Badge variant="outline">Unknown</Badge>
-      }
+      const status = row.original.status || 'received'
       const variant = getStatusVariant(status)
       const label = status.charAt(0).toUpperCase() + status.slice(1)
 
@@ -117,46 +125,39 @@ export const companyColumns: ColumnDef<CompanyColumn>[] = [
     filterFn: 'equalsString',
   },
   {
-    accessorKey: 'created',
-    header: ({ column }) => (
-      <button
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="flex items-center gap-2 font-medium hover:text-foreground/80 transition-colors"
-        aria-label="Toggle sort by created date"
-      >
-        Created Date
-        <span className="text-xs opacity-50">
-          {column.getIsSorted() === 'asc' ? '↑' : column.getIsSorted() === 'desc' ? '↓' : '⇅'}
-        </span>
-      </button>
-    ),
+    accessorKey: 'ingestion_method',
+    header: 'Source',
     cell: ({ row }) => {
-      const date = row.original.created
+      const method = row.original.ingestion_method || 'dashboard'
+      const labels: Record<string, string> = {
+        dashboard: 'Dashboard',
+        api: 'API',
+        email: 'Email',
+      }
       return (
-        <span className="text-sm text-muted-foreground">
-          {formatDate(date)}
+        <span className="text-sm text-muted-foreground capitalize">
+          {labels[method] || method}
         </span>
       )
     },
     enableSorting: true,
-    enableColumnFilter: false,
   },
   {
-    accessorKey: 'last_activity',
+    accessorKey: 'created_at',
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="flex items-center gap-2 font-medium hover:text-foreground/80 transition-colors"
-        aria-label="Toggle sort by last activity date"
+        aria-label="Toggle sort by received date"
       >
-        Last Activity
+        Received
         <span className="text-xs opacity-50">
           {column.getIsSorted() === 'asc' ? '↑' : column.getIsSorted() === 'desc' ? '↓' : '⇅'}
         </span>
       </button>
     ),
     cell: ({ row }) => {
-      const date = row.original.last_activity
+      const date = row.original.created_at
       return (
         <span className="text-sm text-muted-foreground">
           {formatDate(date)}
