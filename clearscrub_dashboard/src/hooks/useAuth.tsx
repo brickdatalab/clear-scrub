@@ -95,8 +95,39 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       console.log('[useAuth] Fetching org_id for user:', supabaseUser.id)
     }
 
-    // Query profiles table to get org_id with timeout to prevent hanging
-    const timeoutMs = 5000
+    // Check localStorage cache first for instant load
+    const cacheKey = `clearscrub_org_id_${supabaseUser.id}`
+    const cachedOrgId = localStorage.getItem(cacheKey)
+
+    if (cachedOrgId) {
+      if (import.meta.env.DEV) {
+        console.log('[useAuth] Using cached org_id:', cachedOrgId)
+      }
+      // Return cached value immediately, refresh in background
+      const cachedUser: AuthUser = {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        org_id: cachedOrgId
+      }
+
+      // Refresh cache in background (don't await)
+      supabase
+        .from('profiles')
+        .select('org_id')
+        .eq('id', supabaseUser.id)
+        .single()
+        .then(({ data: profile }) => {
+          if (profile?.org_id && profile.org_id !== cachedOrgId) {
+            localStorage.setItem(cacheKey, profile.org_id)
+          }
+        })
+        .catch(() => {}) // Ignore background refresh errors
+
+      return cachedUser
+    }
+
+    // No cache - query profiles table with reduced timeout
+    const timeoutMs = 2000
     const queryPromise = supabase
       .from('profiles')
       .select('org_id')
@@ -121,6 +152,9 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
 
       if (!profile?.org_id) {
         console.warn('[useAuth] User profile exists but org_id is NULL:', supabaseUser.id)
+      } else {
+        // Cache org_id for next load
+        localStorage.setItem(cacheKey, profile.org_id)
       }
 
       if (import.meta.env.DEV) {
@@ -330,6 +364,11 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
 
       const { error } = await Promise.race([signOutPromise, timeoutPromise])
       if (error) throw error
+
+      // Clear org_id cache
+      if (user?.id) {
+        localStorage.removeItem(`clearscrub_org_id_${user.id}`)
+      }
 
       setSession(null)
       setUser(null)
