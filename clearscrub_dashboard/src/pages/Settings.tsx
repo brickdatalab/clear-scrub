@@ -154,8 +154,12 @@ const Settings: React.FC = () => {
   useEffect(() => {
     if (user?.org_id) {
       fetchOrgData();
+    } else if (user && !user.org_id) {
+      // User exists but has no org_id - stop loading and show error
+      setError('No organization ID found for your account');
+      setLoading(false);
     }
-  }, [user?.org_id]);
+  }, [user?.org_id, user]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
