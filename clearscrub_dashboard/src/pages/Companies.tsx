@@ -16,7 +16,6 @@ export default function Companies() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false)
-  const enableAddCompany = import.meta.env.VITE_ENABLE_ADD_COMPANY === 'true'
 
   // Ref to prevent StrictMode double-fetch
   const fetchStartedRef = useRef(false)
@@ -73,18 +72,16 @@ export default function Companies() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-3xl font-bold text-foreground">Companies</h1>
-        {enableAddCompany && (
-          <Button
-            className="flex items-center gap-2"
-            size="lg"
-            aria-label="Add new company"
-            onClick={() => setIsAddCompanyOpen(true)}
-          >
-            <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Add Company</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
-        )}
+        <Button
+          className="flex items-center gap-2"
+          size="lg"
+          aria-label="Add new company"
+          onClick={() => setIsAddCompanyOpen(true)}
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Add Company</span>
+          <span className="sm:hidden">Add</span>
+        </Button>
       </div>
 
       {/* Error State */}
@@ -114,12 +111,10 @@ export default function Companies() {
       </Card>
 
       {/* Add Company Modal */}
-      {enableAddCompany && (
-        <AddCompanyModal
-          isOpen={isAddCompanyOpen}
-          onClose={() => setIsAddCompanyOpen(false)}
-        />
-      )}
+      <AddCompanyModal
+        isOpen={isAddCompanyOpen}
+        onClose={() => setIsAddCompanyOpen(false)}
+      />
     </div>
   )
 }
