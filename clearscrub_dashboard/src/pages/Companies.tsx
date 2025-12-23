@@ -13,7 +13,11 @@ import { useCompanyPrefetch } from '@/hooks/useCompanyPrefetch'
 // Lazy-load AddCompanyModal to reduce initial bundle size
 const AddCompanyModal = lazy(() =>
   import('@/components/AddCompanyModal').then(module => ({ default: module.AddCompanyModal }))
-)
+) as React.LazyExoticComponent<React.ComponentType<{
+  isOpen: boolean
+  onClose: () => void
+  onSuccess?: () => void
+}>>
 
 export default function Companies() {
   const navigate = useNavigate()
