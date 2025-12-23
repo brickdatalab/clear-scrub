@@ -79,7 +79,7 @@ export default function FilesTable({ companyId, refreshKey = 0 }: FilesTableProp
 
           // Generate signed URL for file access
           const { data } = supabase.storage
-            .from('incoming-documents')
+            .from('documents')
             .getPublicUrl(doc.file_path)
 
           return {

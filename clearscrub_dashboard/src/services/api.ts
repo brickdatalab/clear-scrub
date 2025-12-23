@@ -63,14 +63,16 @@ async function invokeWithAuth<T>(functionName: string, body?: Record<string, unk
 
 export interface CompanyListItem {
   id: string
-  company_id: string
+  submission_id: string
   name: string
-  email: string
-  file_status: 'completed' | 'processing' | 'failed'
-  created: string
-  last_activity: string
-  lendsaas_synced: boolean
-  crm_synced: boolean
+  dba_name: string | null
+  email: string | null
+  status: 'received' | 'processing' | 'completed' | 'failed'
+  files_total: number
+  files_processed: number
+  ingestion_method: 'dashboard' | 'api' | 'email'
+  created_at: string
+  updated_at: string
 }
 
 export interface CompanyListResponse {
@@ -226,7 +228,7 @@ export interface CompanyDebtsResponse {
 
 export interface Document {
   id: string
-  company_id: string
+  submission_id: string
   filename: string
   file_size_bytes: number
   status: 'uploaded' | 'queued' | 'processing' | 'completed' | 'failed' | 'archived'
@@ -377,21 +379,20 @@ export const api = {
 
   /**
    * Upload documents to Supabase Storage
-   * Files are uploaded to 'incoming-documents' bucket
+   * @deprecated Use prepareSubmission + uploadFileToStorage + triggerDocumentProcessing from ingestion.ts instead
    */
   async uploadDocuments(files: File[], companyId?: string): Promise<UploadResponse> {
+    console.warn('uploadDocuments is deprecated. Use ingestion.ts functions instead.');
     const uploadedDocs: Array<{ id: string; filename: string; file_path: string }> = []
 
     for (const file of files) {
-      // Generate unique file path with timestamp
       const timestamp = Date.now()
       const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
       const filePath = `${companyId || 'unassigned'}/${timestamp}_${sanitizedFilename}`
 
-      // Upload to Supabase Storage with timeout
       const { data, error } = await withTimeout(
         supabase.storage
-          .from('incoming-documents')
+          .from('documents')
           .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false
@@ -405,30 +406,29 @@ export const api = {
         throw new Error(`Failed to upload ${file.name}: ${error.message}`)
       }
 
-      // Create document record in database with timeout
-      const { data: docData, error: docError } = await withTimeout(
+      const { data: fileData, error: fileError } = await withTimeout(
         supabase
-          .from('documents')
+          .from('files')
           .insert({
-            company_id: companyId || null,
             filename: file.name,
             file_path: data.path,
             file_size_bytes: file.size,
-            file_type: file.type,
+            mime_type: file.type,
+            source: 'dashboard',
             status: 'uploaded'
           })
           .select('id, filename, file_path')
           .single(),
         TIMEOUT_MS.SUPABASE_QUERY,
-        'Create document record'
+        'Create file record'
       )
 
-      if (docError) {
-        console.error('Document record creation error:', docError)
-        throw new Error(`Failed to create document record: ${docError.message}`)
+      if (fileError) {
+        console.error('File record creation error:', fileError)
+        throw new Error(`Failed to create file record: ${fileError.message}`)
       }
 
-      uploadedDocs.push(docData)
+      uploadedDocs.push(fileData)
     }
 
     return {
@@ -441,11 +441,12 @@ export const api = {
    * Fetch documents for a specific company
    */
   async getDocuments(companyId: string): Promise<Document[]> {
+    // Note: companyId is actually submission_id - files are linked to submissions
     const { data, error } = await withTimeout(
       supabase
-        .from('documents')
-        .select('id, company_id, filename, file_size_bytes, status, created_at, file_path')
-        .eq('company_id', companyId)
+        .from('files')
+        .select('id, submission_id, filename, file_size_bytes, status, created_at, file_path')
+        .eq('submission_id', companyId)
         .order('created_at', { ascending: false }),
       TIMEOUT_MS.SUPABASE_QUERY,
       'getDocuments'
