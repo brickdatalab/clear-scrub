@@ -344,12 +344,71 @@ export interface AuditLog {
   created_at: string
 }
 
+// ============================================================================
+// SIMPLE IN-MEMORY CACHE FOR COMPANIES LIST
+// ============================================================================
+
+const COMPANIES_CACHE_STALE_TIME = 45 * 1000 // 45 seconds
+
+interface CompaniesCache {
+  data: CompanyListResponse | null
+  timestamp: number
+  key: string // cache key based on page/limit
+}
+
+let companiesCache: CompaniesCache = {
+  data: null,
+  timestamp: 0,
+  key: ''
+}
+
+/**
+ * Check if cache is valid (not stale)
+ */
+function isCacheValid(cacheKey: string): boolean {
+  if (!companiesCache.data || companiesCache.key !== cacheKey) {
+    return false
+  }
+  const now = Date.now()
+  const age = now - companiesCache.timestamp
+  return age < COMPANIES_CACHE_STALE_TIME
+}
+
+/**
+ * Invalidate the companies cache
+ * Call this after adding/updating/deleting a company
+ */
+export function invalidateCompaniesCache(): void {
+  companiesCache = { data: null, timestamp: 0, key: '' }
+  console.log('[api] Companies cache invalidated')
+}
+
 export const api = {
   /**
    * Fetch paginated list of companies
+   * Uses in-memory cache with 45s staleTime to prevent duplicate fetches
    */
   async getCompanies(page = 1, limit = 50): Promise<CompanyListResponse> {
-    return invokeWithAuth<CompanyListResponse>('list-companies', { page, limit })
+    const cacheKey = `${page}-${limit}`
+
+    // Return cached data if valid
+    if (isCacheValid(cacheKey) && companiesCache.data) {
+      console.log('[api] getCompanies: returning cached data')
+      return companiesCache.data
+    }
+
+    // Fetch fresh data
+    console.log('[api] getCompanies: fetching fresh data')
+    const data = await invokeWithAuth<CompanyListResponse>('list-companies', { page, limit })
+
+    // Update cache
+    companiesCache = {
+      data,
+      timestamp: Date.now(),
+      key: cacheKey
+    }
+
+    return data
   },
 
   /**

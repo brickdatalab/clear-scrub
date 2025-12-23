@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Plus, ChevronDown, X } from 'lucide-react'
 import { List as FixedSizeList } from 'react-window'
@@ -12,6 +12,7 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { api, type CompanyDetailResponse } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
 import { withTimeout, TIMEOUT_MS } from '../lib/utils'
+import { companyPrefetchCache } from '../hooks/useCompanyPrefetch'
 
 interface Address {
   address_line_1: string
@@ -567,6 +568,9 @@ export default function CompanyDetail() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showActionsMenu, setShowActionsMenu] = useState(false)
 
+  // Ref to track if we used cached data (for logging)
+  const usedCacheRef = useRef(false)
+
   // Load company data on mount or when companyId changes
   useEffect(() => {
     if (!authReady || !companyId) {
@@ -579,6 +583,18 @@ export default function CompanyDetail() {
 
   const loadCompanyData = async () => {
     if (!companyId) return
+
+    // Check prefetch cache first for instant load
+    const cachedData = companyPrefetchCache.get(companyId)
+    if (cachedData) {
+      usedCacheRef.current = true
+      if (import.meta.env.DEV) {
+        console.log(`[CompanyDetail] Using prefetched data for ${companyId}`)
+      }
+      setCompanyData(cachedData)
+      setLoading(false)
+      return
+    }
 
     try {
       setLoading(true)

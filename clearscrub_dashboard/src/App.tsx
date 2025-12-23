@@ -1,7 +1,9 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AuthProvider } from './hooks/useAuth'
+
+// Lazy load SpeedInsights to avoid blocking critical path
+const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(mod => ({ default: mod.SpeedInsights })))
 import ProtectedRoute from './components/ProtectedRoute'
 import AppShell from './layouts/AppShell'
 import Login from './pages/Login' // Keep Login eager for fast first load
@@ -22,10 +24,34 @@ const Triggers = lazy(() => import('./pages/Triggers'))
 const AuthCallback = lazy(() => import('./pages/AuthCallback'))
 const TestUpload = lazy(() => import('./pages/TestUpload'))
 
+// Deferred SpeedInsights wrapper - loads after main content is ready
+function DeferredSpeedInsights() {
+  const [shouldLoad, setShouldLoad] = useState(false)
+
+  useEffect(() => {
+    // Use requestIdleCallback if available, otherwise setTimeout
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 })
+      return () => window.cancelIdleCallback(id)
+    } else {
+      const id = setTimeout(() => setShouldLoad(true), 0)
+      return () => clearTimeout(id)
+    }
+  }, [])
+
+  if (!shouldLoad) return null
+
+  return (
+    <Suspense fallback={null}>
+      <SpeedInsights />
+    </Suspense>
+  )
+}
+
 function App() {
   return (
     <AuthProvider>
-      <SpeedInsights />
+      <DeferredSpeedInsights />
       <Router>
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-screen">

@@ -15,6 +15,10 @@ export default defineConfig({
     host: true,
   },
   build: {
+    target: 'es2020',
+    modulePreload: {
+      polyfill: false,
+    },
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {

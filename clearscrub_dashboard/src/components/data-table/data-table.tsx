@@ -44,6 +44,8 @@ export interface DataTableProps<TData, TValue> {
   data: TData[]
   pageSize?: number
   onRowClick?: (row: TData) => void
+  onRowHover?: (row: TData) => void
+  onRowHoverEnd?: () => void
   className?: string
   initialVisibility?: VisibilityState
   globalFilterColumn?: string
@@ -80,6 +82,8 @@ export function DataTable<TData, TValue>({
   data,
   pageSize = 20,
   onRowClick,
+  onRowHover,
+  onRowHoverEnd,
   className,
   initialVisibility = {},
   globalFilterColumn,
@@ -321,6 +325,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   onClick={() => handleRowClick(row.original)}
+                  onMouseEnter={onRowHover ? () => onRowHover(row.original) : undefined}
+                  onMouseLeave={onRowHoverEnd}
                   onKeyDown={(e) => {
                     if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault()
