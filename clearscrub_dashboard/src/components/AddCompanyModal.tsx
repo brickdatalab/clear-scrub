@@ -6,17 +6,23 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dropzone } from '@/components/ui/dropzone';
 import { X, AlertCircle, CheckCircle, Upload } from 'lucide-react';
-import { prepareSubmission, uploadFileToStorage, enqueueDocumentProcessing, UploadProgress } from '@/services/ingestion';
+import { prepareSubmission, uploadFileToStorage, triggerDocumentProcessing, UploadProgress } from '@/services/ingestion';
 
 interface FileWithProgress {
   file: File;
-  docId?: string;
+  fileId?: string;
   progress: number;
   status: 'pending' | 'uploading' | 'processing' | 'complete' | 'error';
   error?: string;
 }
 
-export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+interface AddCompanyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export function AddCompanyModal({ isOpen, onClose, onSuccess }: AddCompanyModalProps) {
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [companyName, setCompanyName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +39,12 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   const handleRemoveFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const resetModal = () => {
+    setFiles([]);
+    setCompanyName('');
+    setSubmitError(null);
   };
 
   const handleUpload = async () => {
@@ -53,48 +65,66 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
       }));
 
       const prepared = await prepareSubmission(fileMetadata);
+      console.log('[AddCompanyModal] Submission prepared:', prepared.submission_id);
 
-      // Step 2: Upload each file and enqueue processing
+      // Step 2: Upload each file and trigger processing
       const updatedFiles = [...files];
+      
       for (let i = 0; i < files.length; i++) {
         try {
+          // Mark as uploading
           updatedFiles[i].status = 'uploading';
           setFiles([...updatedFiles]);
 
           const fileMap = prepared.file_maps[i];
-          updatedFiles[i].docId = fileMap.doc_id;
+          updatedFiles[i].fileId = fileMap.file_id;
 
-          // Upload file
+          // Upload file to storage
           await uploadFileToStorage(files[i].file, fileMap.file_path, (progress: UploadProgress) => {
             updatedFiles[i].progress = progress.percent;
             setFiles([...updatedFiles]);
           });
 
+          // Mark as processing
           updatedFiles[i].status = 'processing';
           updatedFiles[i].progress = 100;
           setFiles([...updatedFiles]);
 
-          // Step 3: Enqueue for processing
-          await enqueueDocumentProcessing(fileMap.doc_id);
+          // Step 3: Trigger document processing pipeline
+          console.log(`[AddCompanyModal] Triggering processing for file: ${fileMap.file_id}`);
+          await triggerDocumentProcessing(fileMap.file_id);
 
+          // Mark as complete
           updatedFiles[i].status = 'complete';
           setFiles([...updatedFiles]);
+          console.log(`[AddCompanyModal] File ${i + 1}/${files.length} complete`);
+
         } catch (err) {
+          console.error(`[AddCompanyModal] Error processing file ${i}:`, err);
           updatedFiles[i].status = 'error';
           updatedFiles[i].error = err instanceof Error ? err.message : 'Unknown error';
           setFiles([...updatedFiles]);
         }
       }
 
-      // Close modal after successful upload
-      if (updatedFiles.every(f => f.status === 'complete')) {
+      // Check if all files completed successfully
+      const allComplete = updatedFiles.every(f => f.status === 'complete');
+      const anyComplete = updatedFiles.some(f => f.status === 'complete');
+
+      if (allComplete) {
+        console.log('[AddCompanyModal] All files processed successfully');
         setTimeout(() => {
           onClose();
-          setFiles([]);
-          setCompanyName('');
+          resetModal();
+          onSuccess?.();
         }, 1000);
+      } else if (anyComplete) {
+        console.log('[AddCompanyModal] Some files completed, some failed');
+        // Keep modal open to show errors
       }
+
     } catch (err) {
+      console.error('[AddCompanyModal] Upload error:', err);
       const message = err instanceof Error ? err.message : 'Upload failed';
       setSubmitError(message);
       setFiles(prev => prev.map(f => ({
@@ -107,11 +137,18 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
     }
   };
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      onClose();
+      resetModal();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Company Statement</DialogTitle>
+          <DialogTitle>Upload Documents</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -130,12 +167,15 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
             </label>
             <Input
               id="company-name"
-              placeholder="Enter company name or leave blank to auto-detect from documents"
+              placeholder="Leave blank to auto-detect from documents"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               disabled={isSubmitting}
               aria-label="Company name"
             />
+            <p className="text-xs text-slate-500">
+              Company name will be extracted automatically from loan applications
+            </p>
           </div>
 
           {/* Dropzone */}
@@ -168,7 +208,7 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                       <button
                         onClick={() => handleRemoveFile(index)}
                         disabled={fileItem.status === 'uploading' || fileItem.status === 'processing'}
-                        className="p-1 hover:bg-slate-200 rounded"
+                        className="p-1 hover:bg-slate-200 rounded disabled:opacity-50"
                         aria-label={`Remove ${fileItem.file.name}`}
                       >
                         <X className="h-4 w-4" />
@@ -182,8 +222,8 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                   {fileItem.status !== 'error' && (
                     <p className="text-xs text-slate-500">
                       {fileItem.status === 'uploading' && `Uploading... ${fileItem.progress}%`}
-                      {fileItem.status === 'processing' && 'Queuing for processing...'}
-                      {fileItem.status === 'complete' && 'Upload complete'}
+                      {fileItem.status === 'processing' && 'Processing document...'}
+                      {fileItem.status === 'complete' && 'Complete'}
                       {fileItem.status === 'pending' && 'Ready to upload'}
                     </p>
                   )}
@@ -196,7 +236,7 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
           <div className="flex gap-2 justify-end">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
             >
               Cancel
@@ -208,7 +248,7 @@ export function AddCompanyModal({ isOpen, onClose }: { isOpen: boolean; onClose:
               aria-label="Upload files"
             >
               <Upload className="h-4 w-4" />
-              {isSubmitting ? 'Uploading...' : 'Upload'}
+              {isSubmitting ? 'Processing...' : 'Upload & Process'}
             </Button>
           </div>
         </div>
